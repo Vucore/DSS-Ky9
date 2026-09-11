@@ -1,0 +1,29 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Exclude other subdirectories (only GK and later CK are tracked)
+AHP/
+Fuzzy-AHP/
+
+# Dependencies & Build outputs
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Python & Virtual Environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
