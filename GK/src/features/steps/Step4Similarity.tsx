@@ -6,7 +6,7 @@ import { GuidedStepLayout } from '../../components/GuidedStepLayout';
 import { FormulaCard } from '../../components/FormulaCard';
 import { InlineMath } from '../../components/InlineMath';
 import { Play, Sliders, CheckCircle, XCircle } from 'lucide-react';
-import { toMathId, cleanEntityName } from '../../domain/notationRegistry';
+import { toMathId, toMathSet, cleanEntityName } from '../../domain/notationRegistry';
 
 interface Step4SimilarityProps {
   dataset: Dataset;
@@ -50,11 +50,11 @@ export const Step4Similarity: React.FC<Step4SimilarityProps> = ({
           key: u.id,
           label: (
             <span>
-              {cleanEntityName(u.name)}{' '}
-              <span className="text-xs text-muted font-mono">(<InlineMath latex={toMathId(u.id)} />)</span>
+              <InlineMath latex={`v = ${toMathId(u.id)}`} />:{' '}
+              {cleanEntityName(u.name)}
             </span>
           ),
-          sublabel: isMember ? 'Thành viên nhóm' : 'Người dùng bên ngoài',
+          sublabel: isMember ? 'Thành viên nhóm g (v ∈ g)' : 'Người dùng ngoài nhóm g (v ∉ g)',
           badge: simData.passedThreshold
             ? { text: <span>ĐẠT NGƯỠNG (<InlineMath latex="\ge \theta" />)</span>, variant: 'emerald' }
             : { text: <span>BỊ LOẠI (<InlineMath latex="< \theta" />)</span>, variant: 'rose' },
@@ -146,7 +146,7 @@ export const Step4Similarity: React.FC<Step4SimilarityProps> = ({
                 checked={hyperparameters.simMode === 'normalized_avg'}
                 onChange={() => onUpdateSimMode && onUpdateSimMode('normalized_avg')}
               />
-              <strong>Chuẩn hóa trung bình (Theo lời giải thích bài báo)</strong>
+              <strong>Chuẩn hóa trung bình </strong>
             </div>
             <div className="convention-formula">
               <InlineMath latex="\operatorname{sim}_{g, v} = \frac{\operatorname{sim}^m_{g, v} + \operatorname{sim}^u_{g, v}}{2} \in [0, 1]" />
@@ -159,8 +159,8 @@ export const Step4Similarity: React.FC<Step4SimilarityProps> = ({
       </div>
 
       <ResultTable
-        title={<>Bảng độ tương đồng và Lọc ngưỡng <InlineMath latex="\theta" /> (Công thức 10–13)</>}
-        subtitle={<>Ngưỡng hiện hành <InlineMath latex={`\\theta = ${hyperparameters.theta}`} /> | Rê chuột hoặc nhấp vào bất kỳ giá trị nào để xem biểu thức thay số</>}
+        title={<>Bảng độ tương đồng giữa nhóm g và từng người dùng ứng viên <InlineMath latex="v \in U" /> (Công thức 10–13)</>}
+        subtitle={<>Biến số toán học <InlineMath latex="v" /> đại diện cho từng người dùng trong hệ thống (gồm cả thành viên và người ngoài). Ngưỡng <InlineMath latex={`\\theta = ${hyperparameters.theta}`} /> | Rê chuột xem biểu thức thay số</>}
         columns={[
           { key: 'simM', label: <>Cosine đặc trưng <InlineMath latex="\operatorname{sim}^m_{g, v}" /> (CT 10)</>, align: 'right' },
           { key: 'simU', label: <>Cosine check-in <InlineMath latex="\operatorname{sim}^u_{g, v}" /> (CT 11)</>, align: 'right' },
@@ -188,6 +188,48 @@ export const Step4Similarity: React.FC<Step4SimilarityProps> = ({
         }
         onLeaveTrace={onLeaveTrace}
       />
+
+      {/* Khối tóm tắt kết quả đầu ra nổi bật của Bước 4 */}
+      <div className="step-output-highlight-card">
+        <div className="step-output-header">
+          <div className="step-output-title-group">
+            <h4 className="step-output-title">🎯 Kết quả đầu ra của Bước 4 (Output):</h4>
+          </div>
+          <span className="step-output-badge-target">Chuyển tiếp sang Bước 5</span>
+        </div>
+
+        <div className="step-output-grid">
+          <div className="step-output-card">
+            <div className="step-output-card-label">
+              <span>Tập láng giềng đạt chuẩn (<InlineMath latex="K_g" />):</span>
+            </div>
+            <div className="step-output-card-val text-emerald">
+              <InlineMath latex={`K_g = ${toMathSet(output.candidateUserIds)}`} />
+            </div>
+            <div className="step-output-card-meaning">
+              Có {output.candidateUserIds.length}/{dataset.users.length} người dùng đạt điều kiện <InlineMath latex={`\\operatorname{sim}_{g, v} \\ge ${hyperparameters.theta}`} /> được chọn vào tập cố vấn tin cậy cho nhóm.
+            </div>
+          </div>
+
+          <div className="step-output-card">
+            <div className="step-output-card-label">
+              <span>Tổng trọng số láng giềng (<InlineMath latex="\sum_{v \in K_g} \operatorname{sim}_{g, v}" />):</span>
+            </div>
+            <div className="step-output-card-val text-primary">
+              {Object.values(output.similarities)
+                .reduce((sum, o) => sum + (o.passedThreshold ? o.finalSim : 0), 0)
+                .toFixed(4)}
+            </div>
+            <div className="step-output-card-meaning">
+              Mẫu số chuẩn hóa cho toàn bộ các phép tính điểm Lọc cộng tác ở Bước 5.
+            </div>
+          </div>
+        </div>
+
+        <div className="step-output-forwarding">
+          <span>➡️ <strong>Đích đến tiếp theo:</strong> Tập hợp <InlineMath latex="K_g" /> cùng các điểm tương đồng <InlineMath latex="\operatorname{sim}_{g, v}" /> được chuyển sang <strong>Bước 5</strong> để tính điểm Lọc cộng tác <InlineMath latex="f_{g, l}" />.</span>
+        </div>
+      </div>
     </>
   ) : (
     <div className="placeholder-step-box">
@@ -215,9 +257,9 @@ export const Step4Similarity: React.FC<Step4SimilarityProps> = ({
           </span>
         }
         inputs={[
-          { label: <span>Vectơ nhóm <InlineMath latex="M_g" /></span>, value: `Từ Bước 3` },
-          { label: <span>Vectơ cá nhân <InlineMath latex="M_v" /></span>, value: `Từ Bước 2` },
-          { label: <span>Ngưỡng tương đồng <InlineMath latex="\theta" /></span>, value: `${hyperparameters.theta}` }
+          { label: <span>Kế thừa từ Bước 3 (<InlineMath latex="M_g" />)</span>, value: `Tâm nhóm 11 chiều & check-in nhóm Rg` },
+          { label: <span>Kế thừa từ Bước 2 (<InlineMath latex="M_v" />)</span>, value: `${dataset.users.length} vectơ đặc trưng người dùng 11 chiều` },
+          { label: <span>Ngưỡng tương đồng (<InlineMath latex="\theta" />)</span>, value: `${hyperparameters.theta} (từ Bước 0)` }
         ]}
         deepDiveContent={<FormulaCard stepId={4} />}
         conclusion={

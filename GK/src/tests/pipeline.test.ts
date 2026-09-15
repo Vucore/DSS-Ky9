@@ -10,7 +10,7 @@ import {
 import { INITIAL_MOCK_DATASET } from '../data/mockDataset';
 
 describe('Full Pipeline Integration & Invalidation', () => {
-  it('should run end-to-end pipeline deterministically with executeAll', () => {
+  it('should run end-to-end pipeline deterministically with executeAll', async () => {
     const initialState = createInitialState(INITIAL_MOCK_DATASET);
     expect(initialState.currentStepId).toBe(0);
 

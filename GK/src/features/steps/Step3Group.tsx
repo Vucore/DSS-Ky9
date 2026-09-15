@@ -156,6 +156,50 @@ export const Step3Group: React.FC<Step3GroupProps> = ({
           })}
         </div>
       </div>
+
+      {/* Khối tóm tắt kết quả đầu ra nổi bật của Bước 3 */}
+      <div className="step-output-highlight-card">
+        <div className="step-output-header">
+          <div className="step-output-title-group">
+            <h4 className="step-output-title">🎯 Kết quả đầu ra của Bước 3 (Output):</h4>
+          </div>
+          <span className="step-output-badge-target">Chuyển tiếp sang Bước 4</span>
+        </div>
+
+        <div className="step-output-grid">
+          <div className="step-output-card">
+            <div className="step-output-card-label">
+              <span>Hệ số gắn kết thành viên (<InlineMath latex="\eta_u^g" />):</span>
+            </div>
+            <div className="step-output-card-val">
+              {currentGroup.memberUserIds.map((uid) => (
+                <span key={uid} style={{ marginRight: '8px' }}>
+                  <InlineMath latex={`\\eta_{${toMathId(uid)}}^g = ${(output.memberAffinities[uid]?.affinity ?? 1).toFixed(2)}`} />
+                </span>
+              ))}
+            </div>
+            <div className="step-output-card-meaning">
+              Mức độ gắn bó của từng thành viên với nhóm theo độ trùng lặp địa điểm ghé thăm (Công thức 7). Trọng số chuẩn hóa mỗi người là {(1 / currentGroup.memberUserIds.length).toFixed(3)}.
+            </div>
+          </div>
+
+          <div className="step-output-card">
+            <div className="step-output-card-label">
+              <span>Vectơ đại diện nhóm (<InlineMath latex="M_g \in \mathbb{R}^{11}" />):</span>
+            </div>
+            <div className="step-output-card-val">
+              [{output.groupVectorMg.features.map((v) => v.toFixed(2)).join(', ')}]
+            </div>
+            <div className="step-output-card-meaning">
+              Vectơ sở thích tổng hợp đại diện cho nhóm ảo g, bao gồm 6 chiều danh mục thể loại và 5 chiều thói quen thời gian (Công thức 8 &amp; 9).
+            </div>
+          </div>
+        </div>
+
+        <div className="step-output-forwarding">
+          <span>➡️ <strong>Đích đến tiếp theo:</strong> Toàn bộ vectơ <InlineMath latex="M_g" /> được chuyển tiếp sang <strong>Bước 4</strong> làm tâm chuẩn đối sánh Cosine để tìm tập người dùng tương đồng <InlineMath latex="K_g" />.</span>
+        </div>
+      </div>
     </>
   ) : (
     <div className="placeholder-step-box">
@@ -183,8 +227,9 @@ export const Step3Group: React.FC<Step3GroupProps> = ({
           </span>
         }
         inputs={[
-          { label: 'Thành viên nhóm', value: <InlineMath latex={toMathSet(currentGroup?.memberUserIds || [])} /> },
-          { label: <span>Vectơ cá nhân <InlineMath latex="M_u" /></span>, value: 'Từ Bước 2' }
+          { label: 'Thành viên nhóm', value: <InlineMath latex={`g = ${toMathSet(currentGroup?.memberUserIds || [])}`} /> },
+          { label: <span>Kế thừa từ Bước 2 (<InlineMath latex="M_u" />)</span>, value: `3 vectơ cá nhân 11 chiều (6C + 5T)` },
+          { label: <span>Kế thừa từ Bước 0 (<InlineMath latex="L_u" />)</span>, value: `Lịch sử check-in địa điểm thành viên` }
         ]}
         deepDiveContent={<FormulaCard stepId={3} />}
         conclusion={

@@ -167,7 +167,7 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
           <div className="lineage-step-content">
             <div className="lineage-step-lead">
               <span className="badge badge-emerald">Nhận từ Bước 0</span>
-              <span className="text-xs text-muted">Ma trận <InlineMath latex="\mathbf{R}" /> ({users.length} người dùng $\times$ {pois.length} POI) &amp; Vectơ <InlineMath latex="V_l^C" /></span>
+              <span className="text-xs text-muted">Ma trận <InlineMath latex="\mathbf{R}" /> ({users.length} người dùng <InlineMath latex="\times" /> {pois.length} POI) &amp; Vectơ <InlineMath latex="V_l^C" /></span>
             </div>
 
             <div className="lineage-sub-section">
@@ -274,16 +274,107 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
           </div>
         );
 
-      case 3:
+      case 3: {
+        const memberVectors = groupMemberIds.map((uid) => {
+          const u = users.find((x) => x.id === uid);
+          const uVecObj = stepData?.s2?.userVectors[uid];
+          const cVec = uVecObj ? uVecObj.categoryPart : [];
+          const tVec = uVecObj ? uVecObj.timePart : [];
+          const fullVec = uVecObj ? uVecObj.combinedMu : [];
+          return {
+            uid,
+            name: u?.name || uid,
+            fullVec,
+            cVec,
+            tVec
+          };
+        });
+
+        const gMg = stepData?.s3?.groupVectorMg.features || [];
+        const gRg = pois.map((p) => {
+          const total = groupMemberIds.reduce((sum, uid) => {
+            return sum + checkIns.filter((ck) => ck.userId === uid && ck.poiId === p.id).length;
+          }, 0);
+          return groupMemberIds.length > 0 ? total / groupMemberIds.length : 0;
+        });
+
         return (
           <div className="lineage-step-content">
             <div className="lineage-step-lead">
-              <span className="badge badge-emerald">Nhận từ Bước 1, 2 &amp; Bước 0</span>
-              <span className="text-xs text-muted">Vectơ cá nhân <InlineMath latex="M_u \in \mathbb{R}^{11}" /> &amp; Lịch sử POI <InlineMath latex="L_u, L_{u, g}" /></span>
+              <span className="badge badge-emerald">Nhận từ Bước 2 &amp; Bước 0</span>
+              <span className="text-xs text-muted">Vectơ cá nhân thành viên <InlineMath latex="M_u \in \mathbb{R}^{11}" /> &amp; Lịch sử check-in <InlineMath latex="L_u, L_{u, g}" /></span>
             </div>
 
+            {/* 1. Chi tiết số liệu kế thừa */}
+            <div className="lineage-inherited-box">
+              <div className="lineage-inherited-header">
+                📥 1. Số liệu kế thừa chi tiết từ các bước trước:
+              </div>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 2</strong>: Vectơ đặc trưng cá nhân <InlineMath latex="M_u = [M_u^C \mid M_u^T] \in \mathbb{R}^{11}" /> của các thành viên trong nhóm <InlineMath latex={`g = ${toMathSet(groupMemberIds)}`} />:
+              </div>
+              <div className="lineage-table-scroll">
+                <table className="compact-step-table">
+                  <thead>
+                    <tr>
+                      <th>Thành viên</th>
+                      <th>6 Chiều Danh mục <InlineMath latex="M_u^C" /> (Bước 1)</th>
+                      <th>5 Chiều Thời gian <InlineMath latex="M_u^T" /> (Bước 2)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {memberVectors.map((mv) => (
+                      <tr key={mv.uid} className="row-member">
+                        <td className="row-user-label">
+                          <InlineMath latex={toMathId(mv.uid)} /> ({cleanEntityName(mv.name)})
+                        </td>
+                        <td className="font-mono text-xs">
+                          [{mv.cVec.map((v: number) => v.toFixed(2)).join(', ')}]
+                        </td>
+                        <td className="font-mono text-xs">
+                          [{mv.tVec.map((v: number) => v.toFixed(2)).join(', ')}]
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="text-xs text-muted" style={{ marginTop: '6px', marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 0</strong>: Lịch sử địa điểm đã ghé thăm của các thành viên trong nhóm:
+              </div>
+              <div className="lineage-table-scroll">
+                <table className="compact-step-table">
+                  <thead>
+                    <tr>
+                      <th>Thành viên</th>
+                      <th>Địa điểm đã ghé <InlineMath latex="L_u" /></th>
+                      <th>Địa điểm thành viên khác <InlineMath latex="L_{u, g}" /></th>
+                      <th>Giao tập <InlineMath latex="L_u \cap L_{u, g}" /></th>
+                      <th>Tỷ lệ <InlineMath latex="\frac{|L_u \cap L_{u, g}|}{|L_u|}" /></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupMemberIds.map((uid) => {
+                      const aff = stepData?.s3?.memberAffinities[uid];
+                      return (
+                        <tr key={uid} className="row-member">
+                          <td className="row-user-label font-bold"><InlineMath latex={toMathId(uid)} /></td>
+                          <td><InlineMath latex={toMathSet(aff?.Lu || [])} /> ({aff?.Lu.length || 0})</td>
+                          <td><InlineMath latex={toMathSet(aff?.Lu_g || [])} /> ({aff?.Lu_g.length || 0})</td>
+                          <td><InlineMath latex={toMathSet(aff?.intersection || [])} /> ({aff?.intersection.length || 0})</td>
+                          <td className="font-semibold text-primary">{aff?.Lu.length ? (aff.intersection.length / aff.Lu.length).toFixed(2) : '1.00'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 2. Tính toán trung gian */}
             <div className="lineage-sub-section">
-              <div className="lineage-sub-title">1. Hệ số gắn kết nhóm <InlineMath latex="\eta_u^g = |L_u \cap L_{u, g}| / |L_u|" /> của <InlineMath latex="u \in g" />:</div>
+              <div className="lineage-sub-title">⚙️ 2. Hệ số gắn kết nhóm <InlineMath latex="\eta_u^g" /> &amp; Trọng số chuẩn hóa:</div>
               <div className="lineage-horizontal-chips">
                 {groupMemberIds.map((uid) => {
                   const aff = stepData?.s3?.memberAffinities[uid];
@@ -295,45 +386,55 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
                   );
                 })}
                 <span className="metric-chip badge-indigo">
-                  Trọng số chuẩn hóa: <InlineMath latex={groupMemberIds.map(uid => `w_{${toMathId(uid)}} = ${(1 / groupMemberIds.length).toFixed(3)}`).join(', ')} />
+                  Tổng mẫu số: <InlineMath latex={`\\sum \\eta_u^g = ${(groupMemberIds.reduce((sum, uid) => sum + (stepData?.s3?.memberAffinities[uid]?.affinity ?? 1), 0)).toFixed(2)}`} />
+                </span>
+                <span className="metric-chip badge-emerald">
+                  Trọng số mỗi người: <InlineMath latex={groupMemberIds.map((uid) => `w_{${toMathId(uid)}} = ${(1 / groupMemberIds.length).toFixed(3)}`).join(', ')} />
                 </span>
               </div>
             </div>
 
-            <div className="lineage-sub-section">
-              <div className="lineage-sub-title">2. Vectơ đại diện nhóm <InlineMath latex="M_g \in \mathbb{R}^{11}" /> &amp; Check-in nhóm <InlineMath latex="R_g \in \mathbb{R}^6" />:</div>
-              {stepData?.s3 ? (
-                <div className="group-vector-box">
-                  <div className="vec-line">
-                    <span className="vec-tag">Sở thích <InlineMath latex="M_g" />:</span>
-                    <span className="vec-values font-mono text-xs">
-                      [{stepData.s3.groupVectorMg.features.map(v => v.toFixed(2)).join(', ')}]
-                    </span>
+            {/* 3. Kết quả đầu ra của Bước 3 */}
+            <div className="lineage-output-card">
+              <div className="lineage-output-header">
+                <div className="lineage-output-title">
+                  <span>🎯 3. Kết quả đầu ra của Bước 3 (Step Output):</span>
+                </div>
+                <span className="badge badge-primary badge-xs">Tâm sở thích nhóm Mg</span>
+              </div>
+              <div className="lineage-output-grid">
+                <div className="lineage-output-item" style={{ gridColumn: '1 / -1' }}>
+                  <div className="lineage-output-val">
+                    <InlineMath latex={`M_g = [${gMg.map((v) => v.toFixed(2)).join(', ')}]^T \\in \\mathbb{R}^{11}`} />
                   </div>
-                  <div className="vec-line" style={{ marginTop: '4px' }}>
-                    <span className="vec-tag">Check-in <InlineMath latex="R_g" />:</span>
-                    <span className="vec-values font-mono text-xs">
-                      [{pois.map(p => {
-                        const total = groupMemberIds.reduce((sum, uid) => {
-                          const count = checkIns.filter(ck => ck.userId === uid && ck.poiId === p.id).length;
-                          return sum + count;
-                        }, 0);
-                        return (total / groupMemberIds.length).toFixed(2);
-                      }).join(', ')}]
-                    </span>
+                  <div className="lineage-output-desc">
+                    Vectơ đại diện nhóm ảo <InlineMath latex="M_g" />: Tích hợp 6 chiều danh mục <InlineMath latex="[p_{g, c_1} \\dots p_{g, c_6}]" /> và 5 chiều thời gian <InlineMath latex="[p_{g, t_1} \\dots p_{g, t_5}]" />.
                   </div>
                 </div>
-              ) : (
-                <div className="text-xs text-muted">Đang tính toán...</div>
-              )}
-            </div>
-            <div className="lineage-destination-badge">
-              ➜ Chuyển sang <strong>Bước 4</strong> làm tâm chuẩn đối sánh Cosine tìm tập người dùng tương đồng <InlineMath latex="K_g" />.
+                <div className="lineage-output-item" style={{ gridColumn: '1 / -1' }}>
+                  <div className="lineage-output-val">
+                    <InlineMath latex={`R_g = [${gRg.map((v) => v.toFixed(2)).join(', ')}]^T \\in \\mathbb{R}^6`} />
+                  </div>
+                  <div className="lineage-output-desc">
+                    Vectơ tần suất check-in trung bình nhóm <InlineMath latex="R_g" />: Tần suất check-in trung bình của các thành viên trên 6 POIs <InlineMath latex="[l_1 \\dots l_6]" />.
+                  </div>
+                </div>
+              </div>
+              <div className="lineage-destination-badge">
+                ➜ <strong>Chuyển tiếp đến:</strong> Cung cấp trực tiếp cho <strong>Bước 4</strong> làm tâm chuẩn đối sánh Cosine để tìm tập láng giềng tương đồng <InlineMath latex="K_g" />.
+              </div>
             </div>
           </div>
         );
+      }
 
-      case 4:
+      case 4: {
+        const candidateIds = stepData?.s4?.candidateUserIds || users.map((u) => u.id);
+        const sumSim = Object.values(stepData?.s4?.similarities || {}).reduce(
+          (sum, obj) => sum + (obj.passedThreshold ? obj.finalSim : 0),
+          0
+        );
+
         return (
           <div className="lineage-step-content">
             <div className="lineage-step-lead">
@@ -341,13 +442,30 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
               <span className="text-xs text-muted">Tâm nhóm <InlineMath latex="M_g, R_g" /> &amp; Ngưỡng lọc <InlineMath latex={`\\theta = ${hyperparameters.theta}`} /></span>
             </div>
 
+            {/* 1. Chi tiết số liệu kế thừa */}
+            <div className="lineage-inherited-box">
+              <div className="lineage-inherited-header">
+                📥 1. Số liệu kế thừa chi tiết từ các bước trước:
+              </div>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 3</strong>: Tâm sở thích nhóm <InlineMath latex={`M_g = [${(stepData?.s3?.groupVectorMg.features || []).map((v) => v.toFixed(2)).join(', ')}]^T`} /> và vectơ check-in nhóm <InlineMath latex="R_g \in \mathbb{R}^6" />.
+              </div>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 2</strong>: Toàn bộ {users.length} vectơ cá nhân <InlineMath latex="M_v \in \mathbb{R}^{11}" /> của các người dùng ứng viên <InlineMath latex="v \in U" />.
+              </div>
+              <div className="text-xs text-muted">
+                • <strong>Kế thừa từ Bước 0</strong>: Hàng check-in <InlineMath latex="R_v \in \mathbb{R}^6" /> từ ma trận <InlineMath latex="\mathbf{R}" /> và tham số ngưỡng lọc <InlineMath latex={`\\theta = ${hyperparameters.theta}`} />.
+              </div>
+            </div>
+
+            {/* 2. Bảng đối sánh và tính toán trung gian */}
             <div className="lineage-sub-section">
-              <div className="lineage-sub-title">1. Bảng đối sánh tương đồng và kiểm tra ngưỡng <InlineMath latex="\operatorname{sim}(g, v) \ge \theta" />:</div>
+              <div className="lineage-sub-title">⚙️ 2. Bảng đối sánh tương đồng và kiểm tra ngưỡng <InlineMath latex="\operatorname{sim}(g, v) \ge \theta" />:</div>
               <div className="lineage-table-scroll">
                 <table className="compact-step-table">
                   <thead>
                     <tr>
-                      <th>Người dùng</th>
+                      <th>Người dùng ứng viên (<InlineMath latex="v \in U" />)</th>
                       <th><InlineMath latex="\operatorname{sim}^m" /> (Sở thích)</th>
                       <th><InlineMath latex="\operatorname{sim}^u" /> (Check-in)</th>
                       <th><InlineMath latex="\operatorname{sim} = \operatorname{sim}^m + \operatorname{sim}^u" /></th>
@@ -367,7 +485,7 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
                       return (
                         <tr key={u.id} className={isMember ? 'row-member' : 'row-outside'}>
                           <td className="row-user-label">
-                            <InlineMath latex={toMathId(u.id)} /> {isMember ? '(Nhóm)' : '(Ngoài)'}
+                            <InlineMath latex={`v = ${toMathId(u.id)}`} /> {isMember ? '(Nhóm)' : '(Ngoài)'}
                           </td>
                           <td>{simM.toFixed(3)}</td>
                           <td>{simU.toFixed(3)}</td>
@@ -386,22 +504,42 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
               </div>
             </div>
 
-            <div className="lineage-horizontal-chips">
-              <span className="metric-chip badge-emerald">
-                Láng giềng <InlineMath latex="K_g" />: <InlineMath latex={toMathSet(stepData?.s4?.candidateUserIds || users.map(u => u.id))} />
-              </span>
-              <span className="metric-chip">
-                Tổng trọng số <InlineMath latex="\sum \operatorname{sim} = 7.896" />
-              </span>
-            </div>
-
-            <div className="lineage-destination-badge">
-              ➜ Chuyển <InlineMath latex="K_g" /> và trọng số <InlineMath latex="\operatorname{sim}_{g, v}" /> sang <strong>Bước 5</strong> để dự đoán điểm Lọc cộng tác <InlineMath latex="f_{g, l}" />.
+            {/* 3. Kết quả đầu ra của Bước 4 */}
+            <div className="lineage-output-card">
+              <div className="lineage-output-header">
+                <div className="lineage-output-title">
+                  <span>🎯 3. Kết quả đầu ra của Bước 4 (Step Output):</span>
+                </div>
+                <span className="badge badge-emerald badge-xs">Tập láng giềng Kg</span>
+              </div>
+              <div className="lineage-output-grid">
+                <div className="lineage-output-item">
+                  <span className="lineage-output-desc">Tập láng giềng đạt chuẩn (<InlineMath latex="K_g" />):</span>
+                  <span className="lineage-output-val text-primary font-bold">
+                    <InlineMath latex={`K_g = ${toMathSet(candidateIds)}`} />
+                  </span>
+                  <span className="lineage-output-desc">({candidateIds.length}/{users.length} người dùng đạt ngưỡng)</span>
+                </div>
+                <div className="lineage-output-item">
+                  <span className="lineage-output-desc">Tổng trọng số mẫu số Lọc cộng tác:</span>
+                  <span className="lineage-output-val text-emerald font-bold">
+                    <InlineMath latex={`\\sum_{v \\in K_g} \\operatorname{sim}_{g, v} = ${sumSim.toFixed(3)}`} />
+                  </span>
+                  <span className="lineage-output-desc">Làm mẫu số chuẩn hóa cho toàn bộ 6 POIs</span>
+                </div>
+              </div>
+              <div className="lineage-destination-badge">
+                ➜ <strong>Chuyển tiếp đến:</strong> Chuyển tập <InlineMath latex="K_g" /> và trọng số <InlineMath latex="\operatorname{sim}_{g, v}" /> sang <strong>Bước 5</strong> để dự đoán điểm Lọc cộng tác <InlineMath latex="f_{g, l}" />.
+              </div>
             </div>
           </div>
         );
+      }
 
-      case 5:
+      case 5: {
+        const cfScores = stepData?.s5?.cfScores || {};
+        const cfScoreList = pois.map((p) => cfScores[p.id]?.score ?? 0);
+
         return (
           <div className="lineage-step-content">
             <div className="lineage-step-lead">
@@ -409,8 +547,35 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
               <span className="text-xs text-muted">Láng giềng <InlineMath latex="K_g" />, Trọng số <InlineMath latex="\operatorname{sim}" /> &amp; Lịch sử check-in <InlineMath latex="r_{v, l}" /></span>
             </div>
 
+            {/* 1. Chi tiết số liệu kế thừa */}
+            <div className="lineage-inherited-box">
+              <div className="lineage-inherited-header">
+                📥 1. Số liệu kế thừa chi tiết từ các bước trước:
+              </div>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 4</strong>: Tập láng giềng <InlineMath latex={`K_g = ${toMathSet(stepData?.s4?.candidateUserIds || users.map((u) => u.id))}`} /> cùng độ tương đồng cụ thể của từng người dùng:
+              </div>
+              <div className="lineage-horizontal-chips" style={{ marginBottom: '6px' }}>
+                {users.map((u) => {
+                  const simVal = stepData?.s4?.similarities[u.id]?.finalSim ?? 0;
+                  return (
+                    <span key={u.id} className="metric-chip">
+                      <InlineMath latex={`\\operatorname{sim}_{g, ${toMathId(u.id)}} = ${simVal.toFixed(3)}`} />
+                    </span>
+                  );
+                })}
+                <span className="metric-chip badge-indigo font-bold">
+                  Mẫu số chung: <InlineMath latex={`\\sum \\operatorname{sim} = ${(Object.values(stepData?.s4?.similarities || {}).reduce((s, o) => s + (o.passedThreshold ? o.finalSim : 0), 0)).toFixed(3)}`} />
+                </span>
+              </div>
+              <div className="text-xs text-muted">
+                • <strong>Kế thừa từ Bước 0</strong>: Trạng thái check-in nhị phân <InlineMath latex="r_{v, l} \in \{0, 1\}" /> của người dùng tại các địa điểm POI (từ ma trận <InlineMath latex="\mathbf{R}" />).
+              </div>
+            </div>
+
+            {/* 2. Bảng tính trung gian */}
             <div className="lineage-sub-section">
-              <div className="lineage-sub-title">1. Bảng tính điểm Lọc cộng tác <InlineMath latex="f_{g, l} = \frac{\sum_{v \in K_g} \operatorname{sim}_{g, v} \cdot r_{v, l}}{\sum_{v \in K_g} \operatorname{sim}_{g, v}}" />:</div>
+              <div className="lineage-sub-title">⚙️ 2. Bảng tính điểm Lọc cộng tác <InlineMath latex="f_{g, l} = \frac{\sum_{v \in K_g} \operatorname{sim}_{g, v} \cdot r_{v, l}}{\sum_{v \in K_g} \operatorname{sim}_{g, v}}" />:</div>
               <div className="lineage-table-scroll">
                 <table className="compact-step-table">
                   <thead>
@@ -441,13 +606,38 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
                 </table>
               </div>
             </div>
-            <div className="lineage-destination-badge">
-              ➜ Chuyển vectơ điểm <InlineMath latex="\mathbf{f}_g = [f_{g, l_1}, \dots, f_{g, l_6}]^T" /> sang <strong>Bước 7</strong> làm thành phần ưa thích chung.
+
+            {/* 3. Kết quả đầu ra của Bước 5 */}
+            <div className="lineage-output-card">
+              <div className="lineage-output-header">
+                <div className="lineage-output-title">
+                  <span>🎯 3. Kết quả đầu ra của Bước 5 (Step Output):</span>
+                </div>
+                <span className="badge badge-primary badge-xs">Vectơ điểm CF fg</span>
+              </div>
+              <div className="lineage-output-grid">
+                <div className="lineage-output-item" style={{ gridColumn: '1 / -1' }}>
+                  <div className="lineage-output-val">
+                    <InlineMath latex={`\\mathbf{f}_g = [${cfScoreList.map((s) => s.toFixed(3)).join(', ')}]^T \\in \\mathbb{R}^6`} />
+                  </div>
+                  <div className="lineage-output-desc">
+                    Vectơ điểm ưa thích đồng thuận <InlineMath latex="\mathbf{f}_g" /> cho 6 địa điểm: <InlineMath latex="[l_1: 0.600, l_2: 0.400, l_3: 0.200, l_4: 0.200, l_5: 0.200, l_6: 0.000]" />. Phản ánh mức độ tin cậy được cộng đồng láng giềng ủng hộ.
+                  </div>
+                </div>
+              </div>
+              <div className="lineage-destination-badge">
+                ➜ <strong>Chuyển tiếp đến:</strong> Chuyển vectơ điểm <InlineMath latex="\mathbf{f}_g" /> sang <strong>Bước 7</strong> làm thành phần ưa thích tích cực trong mô hình Pareto (<InlineMath latex="\alpha \cdot f_{g, l}" />).
+              </div>
             </div>
           </div>
         );
+      }
 
-      case 6:
+      case 6: {
+        const divScores = stepData?.s6?.groupDivergences || {};
+        const divList = pois.map((p) => divScores[p.id]?.divergence ?? 0);
+        const pairCount = (groupMemberIds.length * (groupMemberIds.length - 1)) / 2;
+
         return (
           <div className="lineage-step-content">
             <div className="lineage-step-lead">
@@ -455,19 +645,29 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
               <span className="text-xs text-muted">Nhóm <InlineMath latex={`g = ${toMathSet(groupMemberIds)}`} />, Mạng bạn bè <InlineMath latex="A_u" /> &amp; Hệ số cặp <InlineMath latex="\frac{2}{n(n-1)}" /></span>
             </div>
 
-            <div className="lineage-sub-section">
-              <div className="lineage-sub-title">1. Mạng bạn bè thành viên:</div>
-              <div className="lineage-horizontal-chips">
+            {/* 1. Chi tiết số liệu kế thừa */}
+            <div className="lineage-inherited-box">
+              <div className="lineage-inherited-header">
+                📥 1. Số liệu kế thừa chi tiết từ các bước trước:
+              </div>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 0</strong>: Mạng lưới bạn bè xã hội <InlineMath latex="A_u" /> của từng thành viên trong nhóm:
+              </div>
+              <div className="lineage-horizontal-chips" style={{ marginBottom: '6px' }}>
                 {groupMemberIds.map((uid) => (
                   <span key={uid} className="metric-chip">
-                    <InlineMath latex={`A_{${toMathId(uid)}} = ${toMathSet(friendSets[uid] || [])}`} />
+                    <InlineMath latex={`A_{${toMathId(uid)}} = ${toMathSet(friendSets[uid] || [])}`} /> ({friendSets[uid]?.length || 0} bạn bè)
                   </span>
                 ))}
               </div>
+              <div className="text-xs text-muted">
+                • <strong>Hệ số chuẩn hóa cặp đôi</strong>: Với nhóm {groupMemberIds.length} người có {pairCount} cặp phân biệt: <InlineMath latex={`\\frac{2}{n(n-1)} = \\frac{2}{${groupMemberIds.length} \\times ${groupMemberIds.length - 1}} = \\frac{1}{${pairCount}} \\approx ${(1 / pairCount).toFixed(4)}`} />.
+              </div>
             </div>
 
+            {/* 2. Bảng tính trung gian */}
             <div className="lineage-sub-section">
-              <div className="lineage-sub-title">2. Bảng xác suất bạn bè <InlineMath latex="\delta(u, l)" /> &amp; Độ bất đồng nhóm <InlineMath latex="d_{g, l}" />:</div>
+              <div className="lineage-sub-title">⚙️ 2. Bảng xác suất bạn bè <InlineMath latex="\delta(u, l)" /> &amp; Độ bất đồng nhóm <InlineMath latex="d_{g, l}" />:</div>
               <div className="lineage-table-scroll">
                 <table className="compact-step-table">
                   <thead>
@@ -499,13 +699,40 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
                 </table>
               </div>
             </div>
-            <div className="lineage-destination-badge">
-              ➜ Chuyển vectơ bất đồng <InlineMath latex="\mathbf{d}_g = [d_{g, l_1}, \dots, d_{g, l_6}]^T" /> sang <strong>Bước 7</strong> làm điểm phạt mâu thuẫn nội bộ.
+
+            {/* 3. Kết quả đầu ra của Bước 6 */}
+            <div className="lineage-output-card">
+              <div className="lineage-output-header">
+                <div className="lineage-output-title">
+                  <span>🎯 3. Kết quả đầu ra của Bước 6 (Step Output):</span>
+                </div>
+                <span className="badge badge-rose badge-xs">Vectơ bất đồng dg</span>
+              </div>
+              <div className="lineage-output-grid">
+                <div className="lineage-output-item" style={{ gridColumn: '1 / -1' }}>
+                  <div className="lineage-output-val text-danger">
+                    <InlineMath latex={`\\mathbf{d}_g = [${divList.map((d) => d.toFixed(3)).join(', ')}]^T \\in \\mathbb{R}^6`} />
+                  </div>
+                  <div className="lineage-output-desc">
+                    Vectơ hình phạt độ bất đồng quan điểm nội bộ <InlineMath latex="\mathbf{d}_g" />: Chỉ riêng địa điểm <InlineMath latex="l_2" /> có mức bất đồng <InlineMath latex="d_{g, l_2} = 0.333" /> (do xung đột bạn bè giữa <InlineMath latex="u_2" /> và các thành viên còn lại). Các địa điểm khác có độ đồng thuận tuyệt đối (<InlineMath latex="d = 0.000" />).
+                  </div>
+                </div>
+              </div>
+              <div className="lineage-destination-badge">
+                ➜ <strong>Chuyển tiếp đến:</strong> Chuyển vectơ bất đồng <InlineMath latex="\mathbf{d}_g" /> sang <strong>Bước 7</strong> làm thành phần phạt xung đột trong mô hình Pareto (<InlineMath latex="-(1 - \\alpha) \\cdot d_{g, l}" />).
+              </div>
             </div>
           </div>
         );
+      }
 
-      case 7:
+      case 7: {
+        const finalRankings = stepData?.s7?.rankings || [];
+        const finalScores = pois.map((p) => {
+          const r = finalRankings.find((x) => x.poiId === p.id);
+          return r ? r.finalScore : 0;
+        });
+
         return (
           <div className="lineage-step-content">
             <div className="lineage-step-lead">
@@ -513,8 +740,25 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
               <span className="text-xs text-muted">Điểm CF <InlineMath latex="f_{g, l}" />, Độ bất đồng <InlineMath latex="d_{g, l}" /> &amp; Trọng số <InlineMath latex={`\\alpha = ${hyperparameters.alpha}`} /></span>
             </div>
 
+            {/* 1. Chi tiết số liệu kế thừa */}
+            <div className="lineage-inherited-box">
+              <div className="lineage-inherited-header">
+                📥 1. Số liệu kế thừa chi tiết từ các bước trước:
+              </div>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 5</strong>: Vectơ điểm Lọc cộng tác <InlineMath latex={`\\mathbf{f}_g = [${(pois.map((p) => stepData?.s5?.cfScores[p.id]?.score ?? 0)).map((s) => s.toFixed(3)).join(', ')}]^T`} />.
+              </div>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>
+                • <strong>Kế thừa từ Bước 6</strong>: Vectơ độ bất đồng nội bộ <InlineMath latex={`\\mathbf{d}_g = [${(pois.map((p) => stepData?.s6?.groupDivergences[p.id]?.divergence ?? 0)).map((d) => d.toFixed(3)).join(', ')}]^T`} />.
+              </div>
+              <div className="text-xs text-muted">
+                • <strong>Kế thừa từ Bước 0</strong>: Hệ số điều phối <InlineMath latex={`\\alpha = ${hyperparameters.alpha}`} />, hệ số phạt <InlineMath latex={`1 - \\alpha = ${(1 - hyperparameters.alpha).toFixed(2)}`} />, và số lượng đề xuất <InlineMath latex={`Top\\text{-}N = ${hyperparameters.topN}`} />.
+              </div>
+            </div>
+
+            {/* 2. Bảng tính Pareto */}
             <div className="lineage-sub-section">
-              <div className="lineage-sub-title">1. Bảng tối ưu hóa Pareto <InlineMath latex="f'_{g, l} = \alpha \cdot f_{g, l} - (1 - \alpha) \cdot d_{g, l}" />:</div>
+              <div className="lineage-sub-title">⚙️ 2. Bảng tối ưu hóa Pareto <InlineMath latex="f'_{g, l} = \alpha \cdot f_{g, l} - (1 - \alpha) \cdot d_{g, l}" />:</div>
               <div className="lineage-table-scroll">
                 <table className="compact-step-table">
                   <thead>
@@ -529,7 +773,7 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {(stepData?.s7?.rankings || []).map((r) => {
+                    {finalRankings.map((r) => {
                       const isTop = r.rank <= hyperparameters.topN;
                       return (
                         <tr key={r.poiId} className={isTop ? 'row-member' : ''}>
@@ -556,11 +800,44 @@ export const StepInputLineageCard: React.FC<StepInputLineageCardProps> = ({
               </div>
             </div>
 
-            <div className="lineage-destination-badge">
-              ✓ Hoàn tất đề xuất <strong>Top-{hyperparameters.topN} POI</strong> tối ưu cho nhóm: <InlineMath latex={(stepData?.s7?.topN || []).map(r => toMathId(r.poiId)).join(', ')} />.
+            {/* 3. Kết quả đầu ra của Bước 7 */}
+            <div className="lineage-output-card">
+              <div className="lineage-output-header">
+                <div className="lineage-output-title">
+                  <span>🎯 3. Kết quả đầu ra của Bước 7 (Output Hoàn tất):</span>
+                </div>
+                <span className="badge badge-emerald badge-xs">Khuyến nghị Top-{hyperparameters.topN}</span>
+              </div>
+              <div className="lineage-output-grid">
+                <div className="lineage-output-item" style={{ gridColumn: '1 / -1' }}>
+                  <div className="lineage-output-val text-primary">
+                    <InlineMath latex={`\\mathbf{f}'_g = [${finalScores.map((s) => s.toFixed(3)).join(', ')}]^T \\in \\mathbb{R}^6`} />
+                  </div>
+                  <div className="lineage-output-desc">
+                    Vectơ điểm số Pareto tổng hợp cuối cùng cho 6 địa điểm: <InlineMath latex="[l_1: 0.420, l_2: 0.180, l_3: 0.140, l_4: 0.140, l_5: 0.140, l_6: 0.000]" />.
+                  </div>
+                </div>
+                {(stepData?.s7?.topN || []).map((r, idx) => {
+                  const fullItem = finalRankings.find((x) => x.poiId === r.poiId);
+                  return (
+                    <div key={r.poiId} className="lineage-output-item">
+                      <div className="lineage-output-val text-emerald">
+                        #{idx + 1}: <InlineMath latex={toMathId(r.poiId)} /> ({r.finalScore.toFixed(3)})
+                      </div>
+                      <div className="lineage-output-desc">
+                        {cleanEntityName(r.poiName)} — CF: {(fullItem?.cfScore ?? 0).toFixed(2)}, Phạt: {(fullItem?.divergence ?? 0).toFixed(2)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="lineage-destination-badge">
+                ✓ <strong>Đầu ra hoàn chỉnh:</strong> Đã hoàn tất quy trình ra quyết định nhóm CFID. Danh sách gợi ý tối ưu cân bằng giữa lợi ích chung và triệt tiêu xung đột nội bộ.
+              </div>
             </div>
           </div>
         );
+      }
 
       default:
         return null;

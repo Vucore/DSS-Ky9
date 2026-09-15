@@ -5,7 +5,7 @@ import { StepSummary } from '../../components/StepSummary';
 import { GuidedStepLayout } from '../../components/GuidedStepLayout';
 import { FormulaCard } from '../../components/FormulaCard';
 import { InlineMath } from '../../components/InlineMath';
-import { cleanEntityName } from '../../domain/notationRegistry';
+import { cleanEntityName, toMathId } from '../../domain/notationRegistry';
 import { Play } from 'lucide-react';
 
 interface Step7RankingProps {
@@ -65,6 +65,53 @@ export const Step7Ranking: React.FC<Step7RankingProps> = ({
         }
         onLeaveTrace={onLeaveTrace}
       />
+
+      {/* Khối tóm tắt kết quả đầu ra nổi bật của Bước 7 */}
+      <div className="step-output-highlight-card">
+        <div className="step-output-header">
+          <div className="step-output-title-group">
+            <h4 className="step-output-title">🎯 Kết quả đầu ra của Bước 7 (Output Hoàn tất):</h4>
+          </div>
+          <span className="step-output-badge-target">Hoàn tất quy trình</span>
+        </div>
+
+        <div className="step-output-grid">
+          <div className="step-output-card" style={{ gridColumn: '1 / -1' }}>
+            <div className="step-output-card-label">
+              <span>Vectơ điểm khuyến nghị Pareto cuối cùng (<InlineMath latex="\mathbf{f}'_g \in \mathbb{R}^6" />):</span>
+            </div>
+            <div className="step-output-card-val text-primary">
+              <InlineMath
+                latex={`\\mathbf{f}'_g = [${dataset.pois.map((p) => (output.rankings.find((r) => r.poiId === p.id)?.finalScore ?? 0).toFixed(3)).join(', ')}]^T`}
+              />
+            </div>
+            <div className="step-output-card-meaning">
+              Điểm tổng hợp cân bằng tối ưu giữa đồng thuận tập thể và triệt tiêu mâu thuẫn nội bộ (<InlineMath latex="f'_{g, l} = \alpha f_{g, l} - (1 - \alpha) d_{g, l}" />).
+            </div>
+          </div>
+
+          {output.topN.map((r) => {
+            const fullRanking = output.rankings.find((x) => x.poiId === r.poiId);
+            return (
+              <div key={r.poiId} className="step-output-card">
+                <div className="step-output-card-label">
+                  <span>Hạng #{r.rank} Đề xuất:</span>
+                </div>
+                <div className="step-output-card-val text-emerald">
+                  <InlineMath latex={toMathId(r.poiId)} />: {cleanEntityName(r.poiName)}
+                </div>
+                <div className="step-output-card-meaning">
+                  Điểm Pareto: <strong>{r.finalScore.toFixed(4)}</strong> (CF: {(fullRanking?.cfScore ?? 0).toFixed(3)}, Phạt: {(fullRanking?.divergence ?? 0).toFixed(3)})
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="step-output-forwarding">
+          <span>✓ <strong>Hoàn thành:</strong> Hệ thống đã hoàn tất quy trình ra quyết định nhóm CFID và xuất danh sách Top-{hyperparameters.topN} địa điểm được đề xuất tối ưu.</span>
+        </div>
+      </div>
     </div>
   ) : (
     <div className="placeholder-step-box">
@@ -92,10 +139,9 @@ export const Step7Ranking: React.FC<Step7RankingProps> = ({
           </span>
         }
         inputs={[
-          { label: <span>Điểm CF <InlineMath latex="f_{g, l}" /></span>, value: `Từ Bước 5` },
-          { label: <span>Hình phạt <InlineMath latex="d_{g, l}" /></span>, value: `Từ Bước 6` },
-          { label: <span>Hệ số thương lượng <InlineMath latex="\alpha" /></span>, value: `${hyperparameters.alpha}` },
-          { label: 'Không gian địa điểm', value: <span>Toàn bộ <InlineMath latex="l \in L" /> ({dataset.pois.length} POI)</span> }
+          { label: <span>Kế thừa từ Bước 5 (<InlineMath latex="f_{g, l}" />)</span>, value: `Vectơ điểm CF 6 chiều (từ 0.000 đến 0.600)` },
+          { label: <span>Kế thừa từ Bước 6 (<InlineMath latex="d_{g, l}" />)</span>, value: `Vectơ hình phạt mâu thuẫn 6 chiều` },
+          { label: <span>Kế thừa từ Bước 0</span>, value: <InlineMath latex={`\\alpha = ${hyperparameters.alpha}, \\; 1-\\alpha = ${(1 - hyperparameters.alpha).toFixed(2)}, \\; Top\\text{-}N = ${hyperparameters.topN}`} /> }
         ]}
         deepDiveContent={<FormulaCard stepId={7} />}
         conclusion={

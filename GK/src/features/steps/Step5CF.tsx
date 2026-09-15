@@ -84,36 +84,68 @@ export const Step5CF: React.FC<Step5CFProps> = ({
     : [];
 
   const mainContent = output ? (
-    <ResultTable
-      title={<>Điểm số lọc cộng tác cho từng địa điểm POI <InlineMath latex="f_{g, l}" /> (Công thức 14)</>}
-      subtitle="Rê chuột hoặc nhấp vào bất kỳ điểm số nào để kiểm tra chi tiết công thức tử số / mẫu số."
-      columns={[
-        { key: 'num', label: <>Tử số: <InlineMath latex="\sum (\operatorname{sim}_{g, v} \cdot r_{v, l})" /></>, align: 'right' },
-        { key: 'denom', label: <>Mẫu số: <InlineMath latex="\sum \operatorname{sim}_{g, v}" /></>, align: 'right' },
-        { key: 'score', label: <>Điểm CF <InlineMath latex="f_{g, l}" /></>, align: 'right' },
-        { key: 'contributors', label: <>Láng giềng đóng góp (<InlineMath latex="r_{v, l} = 1" />)</> }
-      ]}
-      rows={rows}
-      selectedKey={selectedEntityId}
-      onHoverTrace={(tr, lbl, e) =>
-        (onHoverTrace || onSelectTrace)({
-          stepId: 5,
-          entityId: rows.find((r) => r.trace === tr)?.key || 'cf',
-          trace: tr,
-          label: lbl,
-          position: e ? { x: e.clientX, y: e.clientY } : undefined
-        })
-      }
-      onSelectTrace={(tr, lbl) =>
-        onSelectTrace({
-          stepId: 5,
-          entityId: rows.find((r) => r.trace === tr)?.key || 'cf',
-          trace: tr,
-          label: lbl
-        })
-      }
-      onLeaveTrace={onLeaveTrace}
-    />
+    <>
+      <ResultTable
+        title={<>Điểm số lọc cộng tác cho từng địa điểm POI <InlineMath latex="f_{g, l}" /> (Công thức 14)</>}
+        subtitle="Rê chuột hoặc nhấp vào bất kỳ điểm số nào để kiểm tra chi tiết công thức tử số / mẫu số."
+        columns={[
+          { key: 'num', label: <>Tử số: <InlineMath latex="\sum (\operatorname{sim}_{g, v} \cdot r_{v, l})" /></>, align: 'right' },
+          { key: 'denom', label: <>Mẫu số: <InlineMath latex="\sum \operatorname{sim}_{g, v}" /></>, align: 'right' },
+          { key: 'score', label: <>Điểm CF <InlineMath latex="f_{g, l}" /></>, align: 'right' },
+          { key: 'contributors', label: <>Láng giềng đóng góp (<InlineMath latex="r_{v, l} = 1" />)</> }
+        ]}
+        rows={rows}
+        selectedKey={selectedEntityId}
+        onHoverTrace={(tr, lbl, e) =>
+          (onHoverTrace || onSelectTrace)({
+            stepId: 5,
+            entityId: rows.find((r) => r.trace === tr)?.key || 'cf',
+            trace: tr,
+            label: lbl,
+            position: e ? { x: e.clientX, y: e.clientY } : undefined
+          })
+        }
+        onSelectTrace={(tr, lbl) =>
+          onSelectTrace({
+            stepId: 5,
+            entityId: rows.find((r) => r.trace === tr)?.key || 'cf',
+            trace: tr,
+            label: lbl
+          })
+        }
+        onLeaveTrace={onLeaveTrace}
+      />
+
+      {/* Khối tóm tắt kết quả đầu ra nổi bật của Bước 5 */}
+      <div className="step-output-highlight-card">
+        <div className="step-output-header">
+          <div className="step-output-title-group">
+            <h4 className="step-output-title">🎯 Kết quả đầu ra của Bước 5 (Output):</h4>
+          </div>
+          <span className="step-output-badge-target">Chuyển tiếp sang Bước 7</span>
+        </div>
+
+        <div className="step-output-grid">
+          <div className="step-output-card" style={{ gridColumn: '1 / -1' }}>
+            <div className="step-output-card-label">
+              <span>Vectơ điểm Lọc cộng tác (<InlineMath latex="\mathbf{f}_g \in \mathbb{R}^6" />):</span>
+            </div>
+            <div className="step-output-card-val text-primary">
+              <InlineMath
+                latex={`\\mathbf{f}_g = [${dataset.pois.map((p) => (output.cfScores[p.id]?.score ?? 0).toFixed(3)).join(', ')}]^T`}
+              />
+            </div>
+            <div className="step-output-card-meaning">
+              Điểm dự đoán mức độ quan tâm của nhóm đối với 6 địa điểm: {dataset.pois.map((p) => `${cleanEntityName(p.name)} (${output.cfScores[p.id]?.score.toFixed(3)})`).join(', ')}.
+            </div>
+          </div>
+        </div>
+
+        <div className="step-output-forwarding">
+          <span>➡️ <strong>Đích đến tiếp theo:</strong> Vectơ điểm <InlineMath latex="\mathbf{f}_g" /> được chuyển tiếp sang <strong>Bước 7</strong> làm thành phần ưa thích tích cực trong mô hình Pareto (<InlineMath latex="\alpha \cdot f_{g, l}" />).</span>
+        </div>
+      </div>
+    </>
   ) : (
     <div className="placeholder-step-box">
       <p>Bước 5 cần kết quả của Bước 4.</p>
@@ -140,8 +172,8 @@ export const Step5CF: React.FC<Step5CFProps> = ({
           </span>
         }
         inputs={[
-          { label: <span>Láng giềng đạt ngưỡng <InlineMath latex="\theta" /></span>, value: `Từ Bước 4` },
-          { label: <span>Tập địa điểm <InlineMath latex="L" /></span>, value: `${dataset.pois.length} POI` },
+          { label: <span>Kế thừa từ Bước 4 (<InlineMath latex="K_g" />)</span>, value: `Tập láng giềng & mẫu số tổng trọng số sim` },
+          { label: <span>Kế thừa từ Bước 0 (<InlineMath latex="r_{v, l}" />)</span>, value: `Lịch sử check-in nhị phân trên ${dataset.pois.length} POI` },
           { label: 'Tập người dùng tham gia', value: <span>Toàn bộ <InlineMath latex="v \in U" /></span> }
         ]}
         deepDiveContent={<FormulaCard stepId={5} />}

@@ -40,7 +40,7 @@ The application implements the complete end-to-end CFID recommendation pipeline 
 
 ## 3. Deterministic Mock Dataset Results
 
-The mock dataset consists of 5 users ($U = \{u_1, u_2, u_3, u_4, u_5\}$), target group $g = \{u_1, u_2, u_3\}$, and 6 candidate POIs ($l_1$: Blue Bottle Coffee, $l_2$: Central Park, $l_3$: Joe's Pizza, $l_4$: Skyline Rooftop Bar, $l_5$: Modern Art Museum, $l_6$: Sports & Bowling Complex).
+The mock dataset consists of 5 users ($U = \{u_1, u_2, u_3, u_4, u_5\}$: An, Bình, Cường, Dũng, Hương), target group $g = \{u_1, u_2, u_3\}$, and 6 candidate POIs ($l_1$: Cà phê Blue Bottle, $l_2$: Công viên Trung tâm, $l_3$: Nhà hàng Pizza Joe, $l_4$: Quán Bar Skyline Rooftop, $l_5$: Bảo tàng Nghệ thuật Hiện đại, $l_6$: Tổ hợp Thể thao & Bowling).
 
 ### Step 7: Final Recommendation Score ($f'_{g,l} = 0.7 f_{g,l} - 0.3 d_{g,l}$, Top-$k = 3$)
 | Rank | POI Name | Category | CF Score $f_{g,l}$ | Divergence $d_{g,l}$ | Final Score $f'_{g,l}$ | Status |

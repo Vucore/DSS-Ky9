@@ -116,8 +116,10 @@ export function computeGroupPreference(
     const terms: string[] = [];
     const termsLatex: string[] = [];
 
+    const memberValues: Record<string, number> = {};
     for (const uid of memberIds) {
       const uVal = step2Output.userVectors[uid]?.combinedMu?.[k] || 0;
+      memberValues[uid] = uVal;
       const w = weights[uid];
       numeratorSum += uVal * w;
       terms.push(`(${uVal.toFixed(3)} * ${w.toFixed(3)})`);
@@ -144,7 +146,10 @@ export function computeGroupPreference(
       inputs: {
         featureName: fName,
         featureIndex: k,
-        memberWeights: weights
+        memberIds,
+        memberWeights: weights,
+        memberValues,
+        effectiveSum
       },
       numerator: numeratorSum,
       denominator: effectiveSum,

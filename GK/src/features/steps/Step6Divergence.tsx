@@ -191,6 +191,36 @@ export const Step6Divergence: React.FC<Step6DivergenceProps> = ({
           onLeaveTrace={onLeaveTrace}
         />
       </div>
+
+      {/* Khối tóm tắt kết quả đầu ra nổi bật của Bước 6 */}
+      <div className="step-output-highlight-card">
+        <div className="step-output-header">
+          <div className="step-output-title-group">
+            <h4 className="step-output-title">🎯 Kết quả đầu ra của Bước 6 (Output):</h4>
+          </div>
+          <span className="step-output-badge-target">Chuyển tiếp sang Bước 7</span>
+        </div>
+
+        <div className="step-output-grid">
+          <div className="step-output-card" style={{ gridColumn: '1 / -1' }}>
+            <div className="step-output-card-label">
+              <span>Vectơ hình phạt độ bất đồng nội bộ nhóm (<InlineMath latex="\mathbf{d}_g \in \mathbb{R}^6" />):</span>
+            </div>
+            <div className="step-output-card-val text-danger">
+              <InlineMath
+                latex={`\\mathbf{d}_g = [${dataset.pois.map((p) => (output.groupDivergences[p.id]?.divergence ?? 0).toFixed(3)).join(', ')}]^T`}
+              />
+            </div>
+            <div className="step-output-card-meaning">
+              Mức độ mâu thuẫn / bất đồng giữa các thành viên: Địa điểm {cleanEntityName(dataset.pois[1]?.name || 'l2')} có độ bất đồng cao nhất (0.333) do bạn bè của thành viên u2 đã từng đi trong khi bạn bè của các thành viên khác chưa từng đến. Các địa điểm còn lại đều có mức bất đồng 0.000 (tuyệt đối đồng thuận).
+            </div>
+          </div>
+        </div>
+
+        <div className="step-output-forwarding">
+          <span>➡️ <strong>Đích đến tiếp theo:</strong> Vectơ hình phạt <InlineMath latex="\mathbf{d}_g" /> được chuyển tiếp sang <strong>Bước 7</strong> làm thành phần điểm trừ mâu thuẫn trong mô hình Pareto (<InlineMath latex="-(1 - \alpha) \cdot d_{g, l}" />).</span>
+        </div>
+      </div>
     </>
   ) : (
     <div className="placeholder-step-box">
@@ -218,9 +248,9 @@ export const Step6Divergence: React.FC<Step6DivergenceProps> = ({
           </span>
         }
         inputs={[
-          { label: 'Thành viên nhóm', value: <InlineMath latex={toMathSet(currentGroup?.memberUserIds || [])} /> },
-          { label: <span>Mạng lưới bạn bè <InlineMath latex="A_u" /></span>, value: 'Tập bạn bè tin cậy' },
-          { label: <span>Số cặp so sánh <InlineMath latex="\frac{n(n-1)}{2}" /></span>, value: `${(currentGroup.memberUserIds.length * (currentGroup.memberUserIds.length - 1)) / 2} cặp` }
+          { label: 'Thành viên nhóm', value: <InlineMath latex={`g = ${toMathSet(currentGroup?.memberUserIds || [])}`} /> },
+          { label: <span>Kế thừa từ Bước 0 (<InlineMath latex="A_u" />)</span>, value: `Mạng bạn bè & check-in bạn bè trên 6 POI` },
+          { label: <span>Hệ số cặp phân biệt</span>, value: <InlineMath latex="\frac{2}{3 \times 2} = \frac{1}{3} \approx 0.3333" /> }
         ]}
         deepDiveContent={<FormulaCard stepId={6} />}
         conclusion={

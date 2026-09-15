@@ -97,14 +97,17 @@ export const TraceInspector: React.FC<TraceInspectorProps> = ({
           )}
 
           {trace.formulaLatex && (
-            <div className="trace-formula-preview">
-              <MathView latex={trace.formulaLatex} displayMode={true} />
+            <div className="trace-section">
+              <div className="trace-section-label">📐 Công thức toán học nguyên bản:</div>
+              <div className="trace-formula-preview">
+                <MathView latex={trace.formulaLatex} displayMode={true} />
+              </div>
             </div>
           )}
 
           {/* Biểu thức số học thay thế (KaTeX chuẩn hóa) */}
           <div className="trace-section">
-            <div className="trace-section-label">Biểu thức số học thay thế:</div>
+            <div className="trace-section-label">🔢 Biểu thức thay số cụ thể và kết quả:</div>
             <div className="expression-box math-expression-box">
               <MathView latex={trace.expressionLatex || trace.expression} displayMode={true} />
             </div>
@@ -121,7 +124,9 @@ export const TraceInspector: React.FC<TraceInspectorProps> = ({
                       <span className="origin-symbol">
                         <InlineMath latex={item.symbol} />
                       </span>
-                      <span className="origin-val">={item.value}</span>
+                      <span className="origin-val">
+                        {item.value.startsWith('=') ? item.value : `= ${item.value}`}
+                      </span>
                     </div>
                     <span className="origin-desc">{item.origin}</span>
                   </div>

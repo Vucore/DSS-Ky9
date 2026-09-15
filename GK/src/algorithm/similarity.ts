@@ -130,6 +130,8 @@ export function computeGroupUserSimilarity(
       expressionLatex: simULatexExpr,
       inputs: {
         groupSize: n_g,
+        memberBreakdown,
+        sumMemberCosine,
         memberCosines: memberBreakdown.map((m) => `${m.memberId}: ${m.cosine.toFixed(4)}`)
       },
       numerator: sumMemberCosine,
@@ -162,9 +164,13 @@ export function computeGroupUserSimilarity(
       expression: combinedExpr,
       expressionLatex: combinedExprLatex,
       inputs: {
+        group: group.name,
+        user: user.name,
         simM: mCos.cosine,
         simU: simUValue,
-        simMode
+        simMode,
+        threshold: theta,
+        passesThreshold: combinedSimValue >= theta
       },
       intermediateValues: {
         simM: mCos.cosine,

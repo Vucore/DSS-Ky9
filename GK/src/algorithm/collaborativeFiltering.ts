@@ -88,7 +88,9 @@ export function computeCollaborativeFiltering(
       inputs: {
         poiId: poi.id,
         poiName: poi.name,
-        numValidUsers: validUsers.length
+        numValidUsers: validUsers.length,
+        contributingUsers,
+        totalSimSum
       },
       numerator: numeratorSum,
       denominator: totalSimSum,

@@ -66,6 +66,9 @@ describe('Phase A: KaTeX Notation Registry Validation', () => {
   });
 
   it('should cleanly strip trailing entity ID parentheticals from names', () => {
+    expect(cleanEntityName('An (u1)')).toBe('An');
+    expect(cleanEntityName('Bình (u2)')).toBe('Bình');
+    expect(cleanEntityName('Cường (u3)')).toBe('Cường');
     expect(cleanEntityName('Alice (u1)')).toBe('Alice');
     expect(cleanEntityName('Cà phê Blue Bottle (l1)')).toBe('Cà phê Blue Bottle');
     expect(cleanEntityName('Quán cà phê (c1)')).toBe('Quán cà phê');

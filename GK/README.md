@@ -89,7 +89,7 @@ npm run build
 
 ## 📊 Kết quả kiểm thử mẫu (Deterministic Mock Dataset)
 
-Mô phỏng nhóm mục tiêu $g = \{u_1, u_2, u_3\}$, ngưỡng $\theta = 0.5$, trọng số cân bằng $\alpha = 0.7$:
+Mô phỏng nhóm mục tiêu $g = \{u_1, u_2, u_3\}$ (An, Bình, Cường), ngưỡng $\theta = 0.5$, trọng số cân bằng $\alpha = 0.7$:
 
 | Hạng | POI Name | Thể loại | Điểm CF ($f_{g,l}$) | Độ bất đồng ($d_{g,l}$) | Điểm CFID ($f'_{g,l}$) | Đánh giá |
 |:---:|---|:---:|:---:|:---:|:---:|---|

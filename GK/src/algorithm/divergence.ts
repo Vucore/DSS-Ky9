@@ -126,7 +126,9 @@ export function computeIntragroupDivergence(
       inputs: {
         poiId: poi.id,
         groupSize: n,
-        numPairs
+        numPairs,
+        pairs,
+        sumDifferences
       },
       numerator: 2 * sumDifferences,
       denominator: n * (n - 1),

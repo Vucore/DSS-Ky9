@@ -26,8 +26,8 @@ export const TraceHoverCard: React.FC<TraceHoverCardProps> = ({
     const winW = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const winH = typeof window !== 'undefined' ? window.innerHeight : 800;
 
-    const CARD_WIDTH = winW < 650 ? winW - 32 : 620;
-    const ESTIMATED_HEIGHT = 420;
+    const CARD_WIDTH = winW < 750 ? Math.max(320, winW - 32) : (winW < 1440 ? 680 : 740);
+    const ESTIMATED_HEIGHT = 440;
     const OFFSET_X = 18;
     const OFFSET_Y = 18;
 
@@ -101,7 +101,9 @@ export const TraceHoverCard: React.FC<TraceHoverCardProps> = ({
                   <span className="origin-symbol">
                     <InlineMath latex={item.symbol} />
                   </span>
-                  <span className="origin-val">={item.value}</span>
+                  <span className="origin-val">
+                    {item.value.startsWith('=') ? item.value : `= ${item.value}`}
+                  </span>
                 </div>
                 <span className="origin-desc">{item.origin}</span>
               </div>
