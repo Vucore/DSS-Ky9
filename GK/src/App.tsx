@@ -67,7 +67,7 @@ export function App() {
     try {
       const saved = localStorage.getItem('cfid_theme');
       if (saved === 'dark' || saved === 'light') return saved;
-    } catch {}
+    } catch { }
     return 'light';
   });
 
@@ -75,7 +75,7 @@ export function App() {
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem('cfid_theme', theme);
-    } catch {}
+    } catch { }
   }, [theme]);
 
   // Dọn dẹp timer khi unmount

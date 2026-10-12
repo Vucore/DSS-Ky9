@@ -6,7 +6,7 @@
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f1f5f9;
   --bg-surface-glass: rgba(255, 255, 255, 0.92);
-  
+
   --border-subtle: #e2e8f0;
   --border-focus: #6366f1;
   --border-active: #4f46e5;
@@ -138,7 +138,7 @@
   --bg-surface: #111726;
   --bg-surface-elevated: #182032;
   --bg-surface-glass: rgba(17, 23, 38, 0.85);
-  
+
   --border-subtle: #1e293b;
   --border-focus: #4f46e5;
   --border-active: #6366f1;
@@ -251,7 +251,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 1ms !important;
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
@@ -1589,8 +1592,13 @@ body {
   border-radius: 50%;
 }
 
-.emerald-dot { background: var(--accent-emerald); }
-.indigo-dot { background: var(--accent-indigo); }
+.emerald-dot {
+  background: var(--accent-emerald);
+}
+
+.indigo-dot {
+  background: var(--accent-indigo);
+}
 
 /* Step Summary Banner */
 .step-summary-banner {
@@ -1604,7 +1612,8 @@ body {
   margin-bottom: 16px;
 }
 
-.summary-purpose-row, .summary-conclusion-row {
+.summary-purpose-row,
+.summary-conclusion-row {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -1757,7 +1766,8 @@ body {
   gap: 8px;
 }
 
-.member-seen-tags, .checkin-seen-list {
+.member-seen-tags,
+.checkin-seen-list {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1886,23 +1896,27 @@ body {
   outline: none;
 }
 
-.welcome-choice-card:hover, .welcome-choice-card:focus-visible {
+.welcome-choice-card:hover,
+.welcome-choice-card:focus-visible {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
   background: var(--bg-surface-elevated);
 }
 
-.welcome-choice-card.choice-result:hover, .welcome-choice-card.choice-result:focus-visible {
+.welcome-choice-card.choice-result:hover,
+.welcome-choice-card.choice-result:focus-visible {
   border-color: var(--accent-amber);
   box-shadow: 0 8px 24px rgba(217, 119, 6, 0.12);
 }
 
-.welcome-choice-card.choice-guided:hover, .welcome-choice-card.choice-guided:focus-visible {
+.welcome-choice-card.choice-guided:hover,
+.welcome-choice-card.choice-guided:focus-visible {
   border-color: var(--accent-indigo);
   box-shadow: 0 8px 24px rgba(79, 70, 229, 0.15);
 }
 
-.welcome-choice-card.choice-configure:hover, .welcome-choice-card.choice-configure:focus-visible {
+.welcome-choice-card.choice-configure:hover,
+.welcome-choice-card.choice-configure:focus-visible {
   border-color: var(--accent-emerald);
   box-shadow: 0 8px 24px rgba(5, 150, 105, 0.12);
 }
@@ -1966,9 +1980,17 @@ body {
   font-weight: 600;
 }
 
-.choice-result .choice-footer { color: var(--badge-amber-text); }
-.choice-guided .choice-footer { color: var(--accent-indigo); }
-.choice-configure .choice-footer { color: var(--accent-emerald); }
+.choice-result .choice-footer {
+  color: var(--badge-amber-text);
+}
+
+.choice-guided .choice-footer {
+  color: var(--accent-indigo);
+}
+
+.choice-configure .choice-footer {
+  color: var(--accent-emerald);
+}
 
 /* Collapsed Stepper in Result Mode */
 .stepper-collapsed-result {
@@ -2144,6 +2166,7 @@ body {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2453,6 +2476,7 @@ body {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -2494,6 +2518,7 @@ body {
     from {
       transform: translateY(100%);
     }
+
     to {
       transform: translateY(0);
     }
@@ -2532,6 +2557,7 @@ body {
     opacity: 0;
     transform: scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -3638,6 +3664,3 @@ body {
   color: var(--text-primary);
   border: 1px dashed rgba(99, 102, 241, 0.3);
 }
-
-
-
