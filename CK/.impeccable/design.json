@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T14:54:19.404954+00:00",
+  "title": "Design System: PERSTOUR Lab",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Primary",
+        "tonalRamp": [
+          "oklch(15.00% 0.08779 181.41)",
+          "oklch(26.43% 0.08779 181.41)",
+          "oklch(37.86% 0.08779 181.41)",
+          "oklch(49.29% 0.08779 181.41)",
+          "oklch(60.71% 0.08779 181.41)",
+          "oklch(72.14% 0.08779 181.41)",
+          "oklch(83.57% 0.08779 181.41)",
+          "oklch(95.00% 0.08779 181.41)"
+        ]
+      },
+      "page": {
+        "role": "neutral",
+        "displayName": "Page",
+        "tonalRamp": [
+          "oklch(15.00% 0.00660 106.52)",
+          "oklch(26.43% 0.00660 106.52)",
+          "oklch(37.86% 0.00660 106.52)",
+          "oklch(49.29% 0.00660 106.52)",
+          "oklch(60.71% 0.00660 106.52)",
+          "oklch(72.14% 0.00660 106.52)",
+          "oklch(83.57% 0.00660 106.52)",
+          "oklch(95.00% 0.00660 106.52)"
+        ]
+      },
+      "secondary-surface": {
+        "role": "neutral",
+        "displayName": "Secondary surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.01108 123.46)",
+          "oklch(26.43% 0.01108 123.46)",
+          "oklch(37.86% 0.01108 123.46)",
+          "oklch(49.29% 0.01108 123.46)",
+          "oklch(60.71% 0.01108 123.46)",
+          "oklch(72.14% 0.01108 123.46)",
+          "oklch(83.57% 0.01108 123.46)",
+          "oklch(95.00% 0.01108 123.46)"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Text",
+        "tonalRamp": [
+          "oklch(15.00% 0.03546 180.87)",
+          "oklch(26.43% 0.03546 180.87)",
+          "oklch(37.86% 0.03546 180.87)",
+          "oklch(49.29% 0.03546 180.87)",
+          "oklch(60.71% 0.03546 180.87)",
+          "oklch(72.14% 0.03546 180.87)",
+          "oklch(83.57% 0.03546 180.87)",
+          "oklch(95.00% 0.03546 180.87)"
+        ]
+      },
+      "sidebar-border": {
+        "role": "neutral",
+        "displayName": "Sidebar border",
+        "tonalRamp": [
+          "oklch(15.00% 0.01905 130.20)",
+          "oklch(26.43% 0.01905 130.20)",
+          "oklch(37.86% 0.01905 130.20)",
+          "oklch(49.29% 0.01905 130.20)",
+          "oklch(60.71% 0.01905 130.20)",
+          "oklch(72.14% 0.01905 130.20)",
+          "oklch(83.57% 0.01905 130.20)",
+          "oklch(95.00% 0.01905 130.20)"
+        ]
+      },
+      "focus-art": {
+        "role": "secondary",
+        "displayName": "Focus art",
+        "tonalRamp": [
+          "oklch(15.00% 0.11291 36.89)",
+          "oklch(26.43% 0.11291 36.89)",
+          "oklch(37.86% 0.11291 36.89)",
+          "oklch(49.29% 0.11291 36.89)",
+          "oklch(60.71% 0.11291 36.89)",
+          "oklch(72.14% 0.11291 36.89)",
+          "oklch(83.57% 0.11291 36.89)",
+          "oklch(95.00% 0.11291 36.89)"
+        ]
+      },
+      "selection": {
+        "role": "neutral",
+        "displayName": "Selection",
+        "tonalRamp": [
+          "oklch(15.00% 0.03413 160.39)",
+          "oklch(26.43% 0.03413 160.39)",
+          "oklch(37.86% 0.03413 160.39)",
+          "oklch(49.29% 0.03413 160.39)",
+          "oklch(60.71% 0.03413 160.39)",
+          "oklch(72.14% 0.03413 160.39)",
+          "oklch(83.57% 0.03413 160.39)",
+          "oklch(95.00% 0.03413 160.39)"
+        ]
+      },
+      "culture": {
+        "role": "secondary",
+        "displayName": "Culture",
+        "tonalRamp": [
+          "oklch(15.00% 0.07126 86.07)",
+          "oklch(26.43% 0.07126 86.07)",
+          "oklch(37.86% 0.07126 86.07)",
+          "oklch(49.29% 0.07126 86.07)",
+          "oklch(60.71% 0.07126 86.07)",
+          "oklch(72.14% 0.07126 86.07)",
+          "oklch(83.57% 0.07126 86.07)",
+          "oklch(95.00% 0.07126 86.07)"
+        ]
+      },
+      "shopping": {
+        "role": "secondary",
+        "displayName": "Shopping",
+        "tonalRamp": [
+          "oklch(15.00% 0.10335 278.91)",
+          "oklch(26.43% 0.10335 278.91)",
+          "oklch(37.86% 0.10335 278.91)",
+          "oklch(49.29% 0.10335 278.91)",
+          "oklch(60.71% 0.10335 278.91)",
+          "oklch(72.14% 0.10335 278.91)",
+          "oklch(83.57% 0.10335 278.91)",
+          "oklch(95.00% 0.10335 278.91)"
+        ]
+      },
+      "invalid-route": {
+        "role": "secondary",
+        "displayName": "Invalid route",
+        "tonalRamp": [
+          "oklch(15.00% 0.13777 32.42)",
+          "oklch(26.43% 0.13777 32.42)",
+          "oklch(37.86% 0.13777 32.42)",
+          "oklch(49.29% 0.13777 32.42)",
+          "oklch(60.71% 0.13777 32.42)",
+          "oklch(72.14% 0.13777 32.42)",
+          "oklch(83.57% 0.13777 32.42)",
+          "oklch(95.00% 0.13777 32.42)"
+        ]
+      },
+      "plot": {
+        "role": "neutral",
+        "displayName": "Plot",
+        "tonalRamp": [
+          "oklch(15.00% 0.01232 121.70)",
+          "oklch(26.43% 0.01232 121.70)",
+          "oklch(37.86% 0.01232 121.70)",
+          "oklch(49.29% 0.01232 121.70)",
+          "oklch(60.71% 0.01232 121.70)",
+          "oklch(72.14% 0.01232 121.70)",
+          "oklch(83.57% 0.01232 121.70)",
+          "oklch(95.00% 0.01232 121.70)"
+        ]
+      },
+      "plot-grid": {
+        "role": "neutral",
+        "displayName": "Plot grid",
+        "tonalRamp": [
+          "oklch(15.00% 0.01825 134.93)",
+          "oklch(26.43% 0.01825 134.93)",
+          "oklch(37.86% 0.01825 134.93)",
+          "oklch(49.29% 0.01825 134.93)",
+          "oklch(60.71% 0.01825 134.93)",
+          "oklch(72.14% 0.01825 134.93)",
+          "oklch(83.57% 0.01825 134.93)",
+          "oklch(95.00% 0.01825 134.93)"
+        ]
+      },
+      "travel": {
+        "role": "neutral",
+        "displayName": "Travel",
+        "tonalRamp": [
+          "oklch(15.00% 0.02223 152.04)",
+          "oklch(26.43% 0.02223 152.04)",
+          "oklch(37.86% 0.02223 152.04)",
+          "oklch(49.29% 0.02223 152.04)",
+          "oklch(60.71% 0.02223 152.04)",
+          "oklch(72.14% 0.02223 152.04)",
+          "oklch(83.57% 0.02223 152.04)",
+          "oklch(95.00% 0.02223 152.04)"
+        ]
+      },
+      "marker-stroke": {
+        "role": "neutral",
+        "displayName": "Marker stroke"
+      },
+      "transparent": {
+        "role": "neutral",
+        "displayName": "Transparent"
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "Streamlit sans serif",
+        "purpose": "Family choice only; runtime resolves the exact font and default metrics."
+      },
+      "headline": {
+        "displayName": "Worksheet heading",
+        "purpose": "Main app title; reduced at 700px and below."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "700px"
+      }
+    ],
+    "layout": {
+      "maxContentWidth": "1120px",
+      "columnRatios": [
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "columnGap": "Streamlit default",
+      "visitEditorHeight": "280px",
+      "interestChartHeight": "260px",
+      "workspaceTabs": 0,
+      "initialPage": "Algorithm overview before seven calculation steps",
+      "photoTimelineHeight": "160px",
+      "averageVisitChartHeight": "290px",
+      "scoreBreakdownHeight": "170px",
+      "inputDisclosure": {
+        "visible": "Editable user, time budget, preference weight and endpoints",
+        "expander": "Điểm đến và lịch sử",
+        "initiallyExpanded": false,
+        "contents": [
+          "Editable POI table",
+          "Editable visit history"
+        ]
+      },
+      "workedFormulas": "Relevant values, generic formula and worked substitution; ≈ for rounded values; aligned lines for narrow screens."
+    },
+    "focus": {
+      "selector": "button:focus-visible, a:focus-visible",
+      "outline": "3px solid #9B4B34",
+      "outlineOffset": "3px"
+    },
+    "dataTypography": {
+      "fontVariantNumeric": "tabular-nums"
+    },
+    "previewNotes": "Source-based excerpts only. Native HTML previews show explicit overrides and content structure; Streamlit default geometry, typography and interaction states are not reconstructed. Tonal ramps are generated inspection aids, not implemented colour scales."
+  },
+  "components": [
+    {
+      "name": "Action focus",
+      "kind": "button",
+      "description": "Native preview of the explicit button focus treatment. Streamlit supplies actual button geometry and variants.",
+      "html": "<button class=\"ds-action\">Tính từng bước →</button>",
+      "css": ".ds-action {font-family:sans-serif;color:#18342F;} .ds-action:focus-visible {outline:3px solid #9B4B34;outline-offset:3px;}"
+    },
+    {
+      "name": "Text field caret",
+      "kind": "input",
+      "description": "Native preview of the explicit caret colour. Streamlit supplies field borders, radius and states.",
+      "html": "<label class=\"ds-field\">Tên điểm đến <input value=\"Bảo tàng\" /></label>",
+      "css": ".ds-field {font-family:sans-serif;color:#18342F;} .ds-field input {caret-color:#14786B;}"
+    },
+    {
+      "name": "Seven-step sidebar",
+      "kind": "nav",
+      "description": "Overview entry followed by seven calculation steps; Streamlit owns the rendered radio states.",
+      "html": "<nav class=\"ds-sidebar\" aria-label=\"Các bước\"><h1>PERSTOUR</h1><p>Tổng quan thuật toán</p><p>1 · Nhập dữ liệu</p><p>2 · Tính lượt tham quan</p><p>3 · Tính trung bình</p><p>4 · Tính sở thích</p><p>5 · Tính thời gian &amp; điểm</p><p>6 · Chọn tuyến</p><p>7 · Kết quả</p></nav>",
+      "css": ".ds-sidebar {border-right:1px solid #D7DED1;font-family:sans-serif;color:#18342F;} .ds-sidebar h1 {font-size:2rem;letter-spacing:-.035em;line-height:1.2;} @media(max-width:700px) {.ds-sidebar h1 {font-size:1.7rem;}}"
+    },
+    {
+      "name": "Editable input table",
+      "kind": "custom",
+      "description": "Minimal native preview of an editable data row and tabular numerals. Actual row management and cell editors belong to Streamlit.",
+      "html": "<table class=\"ds-table\"><caption>Điểm đến</caption><thead><tr><th>Mã</th><th>Tên điểm đến</th><th>Vĩ độ</th></tr></thead><tbody><tr><td contenteditable=\"true\">P1</td><td contenteditable=\"true\">Bảo tàng</td><td contenteditable=\"true\">10.77600</td></tr></tbody></table>",
+      "css": ".ds-table {font-family:sans-serif;color:#18342F;font-variant-numeric:tabular-nums;}"
+    },
+    {
+      "name": "Worksheet heading",
+      "kind": "custom",
+      "refersTo": "worksheet-heading",
+      "description": "Main title and implemented compact heading override.",
+      "html": "<h1 class=\"ds-heading\">1 · Nhập dữ liệu</h1>",
+      "css": ".ds-heading {font-family:sans-serif;color:#18342F;font-size:2rem;letter-spacing:-.035em;line-height:1.2;} @media(max-width:700px) {.ds-heading {font-size:1.7rem;}}"
+    },
+    {
+      "name": "Route diagram",
+      "kind": "custom",
+      "refersTo": "route-plot",
+      "description": "Schematic preview of existing route colours, direction, marker outline and endpoint diamonds; not a data-accurate route or Plotly replacement.",
+      "html": "<svg class=\"ds-route\" viewBox=\"0 0 320 120\" role=\"img\" aria-label=\"Sơ đồ tuyến minh hoạ\"><path d=\"M40 80L160 35L275 80\" fill=\"none\" stroke=\"#14786B\" stroke-width=\"3\"/><path d=\"M110 49L119 50L113 57\" fill=\"#14786B\"/><path d=\"M228 58L235 64L225 64\" fill=\"#14786B\"/><path d=\"M40 69L51 80L40 91L29 80Z\" fill=\"#9B4B34\" stroke=\"white\" stroke-width=\"2\"/><circle cx=\"160\" cy=\"35\" r=\"7.5\" fill=\"#14786B\" stroke=\"white\" stroke-width=\"2\"/><path d=\"M275 69L286 80L275 91L264 80Z\" fill=\"#756030\" stroke=\"white\" stroke-width=\"2\"/><text x=\"29\" y=\"60\">P1</text><text x=\"150\" y=\"16\">P2</text><text x=\"265\" y=\"60\">P3</text></svg>",
+      "css": ".ds-route {background:#EFF2E9;color:#18342F;font-family:Arial,sans-serif;width:100%;} .ds-route text {fill:#18342F;font-size:13px;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Quiet teaching worksheet",
+    "overview": "A restrained Vietnamese workspace puts editable data, equations and route evidence at the centre. Pale surfaces and dark green text support sustained reading; the teal accent identifies interaction and valid routes. This records the existing implementation rather than proposing a new identity.",
+    "keyCharacteristics": [
+      "Quiet, legible and focused on the current learning step.",
+      "Editable web tables and visible intermediate calculations.",
+      "Persistent seven-step navigation with forward/back controls.",
+      "Each step shows relevant values, a worked calculation and its output; no source-code viewers or comparison tab."
+    ],
+    "rules": [],
+    "dos": [
+      "Do keep the primary flow a quiet Vietnamese teaching worksheet with seven steps.",
+      "Do preserve the two editable input tables and their calculate/restore flow.",
+      "Do show concrete values and concise explanations; keep checks and paper details in expanders.",
+      "Do retain the implemented palette, heading scale, content width and compact layout rule."
+    ],
+    "donts": [
+      "Don't add unnecessary introductory or technical copy to the primary flow.",
+      "Don't invent fonts, radius scales, shadows or responsive breakpoints absent from the implementation.",
+      "Don't substitute photographic imagery or external map tiles for the local route diagram."
+    ]
+  }
+}
