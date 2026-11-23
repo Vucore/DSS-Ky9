@@ -8,6 +8,7 @@ from perstour.charts import route_map
 from perstour.evaluation import evaluate_glasgow, matched_durations, metrics
 from perstour.flickr import DATA_SOURCE, DEFAULT_BUDGET, DEFAULT_TEST, load_glasgow
 from perstour.overview import render_overview
+from perstour.problem import WALKING_SPEED_KMH
 from perstour.solver import solve_verified
 
 st.set_page_config(page_title="PERSTOUR · Tính từng bước", layout="wide")
@@ -312,7 +313,8 @@ def show_costs(problem, test, eta, personalized):
         st.caption("Tổng điểm tuyến chỉ tính các điểm trung gian.")
     st.subheader("Thời gian cả chặng")
     travel = problem.travel[a, b]
-    st.caption(f"Đi bộ {travel * 4 / 60:.4f} km (Haversine) ở 4 km/h mất {travel:.4f} phút.")
+    distance_km = travel * WALKING_SPEED_KMH / 60
+    st.caption(f"Đi bộ {distance_km:.4f} km (Haversine) ở {WALKING_SPEED_KMH:g} km/h mất {travel:.4f} phút.")
     st.latex(rf"\begin{{aligned}}Cost({a},{b})&=T^{{Travel}}+T^{{Visit}}"
              + rf"\\&\approx{travel:.4f}+{problem.durations[b]:.4f}\\&\approx{problem.cost(a,b):.4f}"
              + r"\;\text{phút}\end{aligned}")

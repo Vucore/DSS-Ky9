@@ -6,9 +6,10 @@ from dataclasses import dataclass
 from math import sqrt
 from statistics import mean
 
-from .core import Problem, Visit
 from .flickr import GlasgowData
+from .models import Problem, Visit
 from .solver import Solution, solve_verified
+
 
 @dataclass(frozen=True)
 class TripEvaluation:
@@ -17,40 +18,50 @@ class TripEvaluation:
     scores: dict[str, float | None]
 
 
-def matched_durations(problem: Problem, route: tuple[str, ...], truth: list[Visit]) -> list[tuple[str, float, float]]:
-    """Return each matched POI, its predicted minutes, and its observed mean minutes."""
-    observed = defaultdict(list)
+def matched_durations(
+    problem: Problem, route: tuple[str, ...], truth: list[Visit]
+) -> list[tuple[str, float, float]]:
+    """Trả mã POI trùng, phút dự đoán và phút quan sát trung bình."""
+    observed: dict[str, list[float]] = defaultdict(list)
     for visit in truth:
         observed[visit.poi].append(visit.minutes)
-    return [(poi, problem.durations[poi], sum(observed[poi]) / len(observed[poi]))
-            for poi in dict.fromkeys(route) if poi in observed]
+    return [
+        (poi, problem.durations[poi], sum(observed[poi]) / len(observed[poi]))
+        for poi in dict.fromkeys(route)
+        if poi in observed
+    ]
 
 
-def metrics(problem: Problem, solution: Solution, truth: list[Visit]) -> dict:
-    """§5.3 includes endpoints in set metrics and tour totals.
-
-    RMSE is undefined if no POI overlaps. Do not silently turn it into zero.
-    If a ground-truth POI repeats, average its observed durations explicitly.
-    """
+def metrics(problem: Problem, solution: Solution, truth: list[Visit]) -> dict[str, float | None]:
+    """Tính chỉ số §5.3 trên tập POI gồm cả hai đầu tuyến."""
     predicted = set(solution.route)
-    actual = {v.poi for v in truth}
+    actual = {visit.poi for visit in truth}
     overlap = predicted & actual
     precision = len(overlap) / len(predicted) if predicted else 0
     recall = len(overlap) / len(actual) if actual else 0
-    squared = [(predicted_minutes - observed_minutes) ** 2
-               for _, predicted_minutes, observed_minutes in matched_durations(problem, solution.route, truth)]
-    interest = problem.statistics.time_interest if problem.interest_type == "time" else problem.statistics.frequency_interest
-    return {"Precision": precision, "Recall": recall,
-            "F1": 2 * precision * recall / (precision + recall) if precision + recall else 0,
-            "RMSE (phút)": sqrt(sum(squared) / len(squared)) if squared else None,
-            "T_Pop": sum(problem.statistics.popularity[p] for p in predicted),
-            "T_Int": sum(interest[problem.pois[p].category] for p in predicted)}
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0
+
+    squared_errors = [
+        (predicted_minutes - observed_minutes) ** 2
+        for _, predicted_minutes, observed_minutes in matched_durations(problem, solution.route, truth)
+    ]
+    rmse = sqrt(sum(squared_errors) / len(squared_errors)) if squared_errors else None
+    stats = problem.statistics
+    interest = stats.time_interest if problem.interest_type == "time" else stats.frequency_interest
+    return {
+        "Precision": precision,
+        "Recall": recall,
+        "F1": f1,
+        "RMSE (phút)": rmse,
+        "T_Pop": sum(stats.popularity[poi] for poi in predicted),
+        "T_Int": sum(interest[problem.pois[poi].category] for poi in predicted),
+    }
 
 
 def evaluate_glasgow(
     data: GlasgowData, *, budget: float, eta: float, interest_type: str, personalized: bool
 ) -> tuple[list[TripEvaluation], dict[str, tuple[float | None, int]]]:
-    """Hold out each eligible sequence independently and give each trip equal weight."""
+    """Lần lượt giữ riêng từng chuyến đủ điều kiện và lấy trung bình theo chuyến."""
     results = []
     for sequence in data.test_options():
         problem, _, truth = data.prepare_trip(
@@ -67,7 +78,7 @@ def evaluate_glasgow(
 
         scores = metrics(problem, solution, truth)
         if not solution.route:
-            # P/R/F1 are zero for a missed recommendation; route totals are undefined.
+            # Precision, Recall và F1 bằng 0 khi không có tuyến.
             scores.update(T_Pop=None, T_Int=None)
         results.append(TripEvaluation(sequence, bool(solution.route), scores))
 

@@ -40,8 +40,9 @@ Loader bỏ qua `poiTheme` và `poiFreq` của bảng ảnh. Hai file lấy từ
 |---|---|---|
 | Đọc CSV | `load_glasgow()` trong `perstour/flickr.py` | Gom ảnh liên tiếp cùng POI trong một chuyến. Một lượt ghé dài từ ảnh đầu đến ảnh cuối. |
 | Chuẩn bị một chuyến | `GlasgowData.split()`, `GlasgowData.prepare_trip()` trong `perstour/flickr.py` | Giữ riêng chuyến test. Lấy người, điểm đầu và điểm cuối từ chuyến đó. Trả bài toán cùng train và test. |
-| Tính số liệu | `compute_statistics()`, `make_problem()` trong `perstour/core.py` | Tính thời lượng trung bình, độ phổ biến, sở thích, điểm POI và chi phí chặng. |
-| Giải tuyến | `solve_verified()`, `solve_milp()`, `enumerate_routes()` trong `perstour/solver.py` | Tối đa tổng điểm POI trung gian trong ngân sách. Đối chiếu MILP với duyệt toàn bộ trong phạm vi 8 POI. |
+| Tính thống kê | [`compute_statistics()`](perstour/statistics.py) | Tính trung bình và độ phổ biến theo POI, rồi tính sở thích của người dùng theo loại. Dùng công thức (1), (2) và Định nghĩa 6. |
+| Lập bài toán | [`make_problem()`](perstour/problem.py), [`Problem.cost()`](perstour/models.py) | Tính phút tham quan theo (3), điểm POI cho (4) và phút đi bộ. Chi phí chặng cộng phút đi và phút tham quan điểm đến. |
+| Giải tuyến | [`solve_milp()`, `solve_verified()`](perstour/solver.py) | Giải mục tiêu (4) với ràng buộc (5)–(9). Đối chiếu nghiệm bằng duyệt toàn bộ trong phạm vi 8 POI. |
 | Đánh giá | `metrics()`, `evaluate_glasgow()` trong `perstour/evaluation.py` | So sánh với chuyến thật hoặc lần lượt giữ riêng từng chuyến đủ điều kiện. |
 
 `demo_flickr.py`, `app.py` và đánh giá hàng loạt dùng chung `prepare_trip()`.

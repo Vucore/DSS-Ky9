@@ -1,7 +1,7 @@
 """Các hình Plotly chạy local, không dùng tile bản đồ từ Internet."""
 import plotly.graph_objects as go
 
-from .core import haversine_km
+from .problem import haversine_km
 
 GLASGOW_COLORS = {"Museum": "#9B4B34", "Park": "#14786B",
               "Structure": "#756030", "Shopping": "#5E63A5",
