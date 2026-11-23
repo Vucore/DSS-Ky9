@@ -137,6 +137,16 @@ def solve_milp(problem: Problem) -> Solution:
     return Solution(route, score, travel + visits, "optimal", "MILP / HiGHS")
 
 
+def solve_verified(problem: Problem) -> tuple[Solution, list[Candidate], Solution]:
+    exact, trace = enumerate_routes(problem)
+    milp = solve_milp(problem)
+    if exact.status != milp.status or (
+        exact.score is not None and (milp.score is None or abs(exact.score - milp.score) > 1e-6)
+    ):
+        raise RuntimeError("Hai cách giải chưa khớp. Chưa thể xác nhận kết quả tối ưu.")
+    return exact, trace, milp
+
+
 def check_solution(problem: Problem, solution: Solution) -> list[dict]:
     if not solution.route:
         return [{"constraint": "Khả thi", "passed": False, "detail": "Không có tuyến thỏa ngân sách."}]

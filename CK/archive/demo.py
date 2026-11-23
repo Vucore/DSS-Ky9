@@ -1,9 +1,10 @@
-"""Ví dụ chạy thẳng bằng Python: uv run python demo.py.
+"""Ví dụ chạy thẳng bằng Python: uv run --no-sync python -m archive.demo.
 
 Đọc file này trước, rồi mở từng hàm trong perstour/core.py và solver.py.
 """
-from perstour.core import map_photos, construct_visits, compute_statistics, make_problem
-from perstour.mock import load_mock, make_photos
+from perstour.core import compute_statistics, make_problem
+from archive.mock import load_mock, make_photos
+from archive.photos import construct_visits, map_photos
 from perstour.solver import enumerate_routes, solve_milp
 
 

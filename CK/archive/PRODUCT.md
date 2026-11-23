@@ -28,7 +28,9 @@ implementation conventions. Include mock inputs and explain optimization decisio
 
 ## Evidence on Hand
 docs/Personalized Tour Recommendation Based on User Interests and Points of Interest Visit Durations.pdf
-No real Flickr dataset or reproduction of the published experiment is requested.
+The Glasgow subset of the authors' Flickr User-POI Visits dataset is available as
+a second input source. The worksheet supports a single held-out trip with training
+statistics and a comparison against the observed route.
 
 ## Open Decisions
 Confirmed direction: a quiet local worksheet with one calculation per screen,

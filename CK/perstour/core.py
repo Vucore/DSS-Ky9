@@ -1,8 +1,4 @@
-"""Paper §§3–4: photos → visits → interests → personalized edge costs.
-
-All durations are in minutes. Scores use the raw quantities in the paper;
-there is deliberately no min-max normalization or duration clipping.
-"""
+"""Thống kê lượt ghé và mô hình lộ trình PERSTOUR. Thời gian tính bằng phút."""
 from __future__ import annotations
 
 from collections import defaultdict
@@ -18,22 +14,6 @@ class POI:
     category: str
     lat: float
     lon: float
-
-
-@dataclass(frozen=True)
-class Photo:
-    id: str
-    user: str
-    time: datetime
-    lat: float
-    lon: float
-
-
-@dataclass(frozen=True)
-class Mapping:
-    photo: Photo
-    poi: str | None
-    distance_m: float
 
 
 @dataclass(frozen=True)
@@ -88,89 +68,60 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return 6371 * 2 * asin(sqrt(min(1, max(0, a))))
 
 
-def map_photos(photos: list[Photo], pois: list[POI], radius_m: float = 200) -> list[Mapping]:
-    """§4 step 1. Nearest qualifying POI resolves overlapping 200 m regions.
-
-    The paper leaves the multiple-match case unspecified; this convention is
-    explicit. A photo exactly 200 m away does not qualify (<, not <=).
-    """
-    if not pois or not isfinite(radius_m) or radius_m <= 0:
-        raise ValueError("Cần ít nhất một POI và bán kính dương.")
-    result = []
-    for photo in sorted(photos, key=lambda p: (p.user, p.time, p.id)):
-        distance, nearest = min((haversine_km(photo.lat, photo.lon, p.lat, p.lon) * 1000, p.id) for p in pois)
-        result.append(Mapping(photo, nearest if distance < radius_m else None, distance))
-    return result
-
-
-def construct_visits(mappings: list[Mapping], gap_hours: float = 8) -> list[Visit]:
-    """§4 step 2, Definitions 1–2.
-
-    A visit is a consecutive run of photos at a POI. Its duration is last
-    photo minus first photo. Split sequences when the next arrival minus
-    the previous departure exceeds 8 h (the printed sign is reversed).
-    """
-    grouped: dict[str, list[Mapping]] = defaultdict(list)
-    for item in mappings:
-        if item.poi is not None:
-            grouped[item.photo.user].append(item)
-    visits = []
-    for user, items in sorted(grouped.items()):
-        items.sort(key=lambda x: (x.photo.time, x.photo.id))
-        runs: list[list[Mapping]] = []
-        for item in items:
-            if (not runs or runs[-1][-1].poi != item.poi
-                    or (item.photo.time - runs[-1][-1].photo.time).total_seconds() > gap_hours * 3600):
-                runs.append([item])
-            else:
-                runs[-1].append(item)
-        sequence_number = 0
-        previous_departure = None
-        for run in runs:
-            arrival, departure = run[0].photo.time, run[-1].photo.time
-            if previous_departure is None or (arrival - previous_departure).total_seconds() > gap_hours * 3600:
-                sequence_number += 1
-            visits.append(Visit(user, run[0].poi, arrival, departure,
-                                tuple(x.photo.id for x in run), f"{user}/S{sequence_number}"))
-            previous_departure = departure
-    return visits
-
-
 def compute_statistics(pois: list[POI], training: list[Visit], user: str) -> Statistics:
-    """Eq. (1), (2), Definition 6; holdout must be removed by the caller."""
-    by_id = {p.id: p for p in pois}
-    durations: dict[str, list[float]] = defaultdict(list)
+    """Tính thống kê từ các lượt train theo (1), (2) và Định nghĩa 6."""
+    poi_by_id = {poi.id: poi for poi in pois}
+    visit_minutes: dict[str, list[float]] = defaultdict(list)
     for visit in training:
-        if visit.poi not in by_id or visit.minutes < 0:
+        minutes = visit.minutes
+        if visit.poi not in poi_by_id or minutes < 0:
             raise ValueError("Lượt thăm không hợp lệ.")
-        durations[visit.poi].append(visit.minutes)
+        visit_minutes[visit.poi].append(minutes)
     averages, popularity = {}, {}
     for poi in pois:
-        values = durations[poi.id]
-        total = sum(values)
-        if not values or total <= 0:
+        durations = visit_minutes[poi.id]
+        total_minutes = sum(durations)
+        if total_minutes <= 0:
             raise ValueError(f"{poi.id} cần ít nhất một lượt thăm có thời lượng dương ngoài chuyến kiểm tra.")
-        averages[poi.id] = total / len(values)
-        popularity[poi.id] = len(values)
-    categories = sorted({p.category for p in pois})
+        popularity[poi.id] = len(durations)
+        averages[poi.id] = total_minutes / len(durations)
+
+    categories = sorted({poi.category for poi in pois})
     time_interest = dict.fromkeys(categories, 0.0)
     frequency_interest = dict.fromkeys(categories, 0)
     contributions = []
     for visit in training:
-        if visit.user == user:
-            category = by_id[visit.poi].category
-            ratio = visit.minutes / averages[visit.poi]
-            time_interest[category] += ratio
-            frequency_interest[category] += 1
-            contributions.append({"sequence": visit.sequence, "poi": visit.poi,
-                                  "category": category, "duration": visit.minutes,
-                                  "average": averages[visit.poi], "ratio": ratio})
+        if visit.user != user:
+            continue
+        category = poi_by_id[visit.poi].category
+        minutes = visit.minutes
+        average = averages[visit.poi]
+        ratio = minutes / average
+        time_interest[category] += ratio
+        frequency_interest[category] += 1
+        contributions.append({
+            "sequence": visit.sequence,
+            "poi": visit.poi,
+            "category": category,
+            "duration": minutes,
+            "average": average,
+            "ratio": ratio,
+        })
     return Statistics(averages, popularity, time_interest, frequency_interest, contributions)
 
 
-def make_problem(pois: list[POI], stats: Statistics, start: str, end: str,
-                 budget: float = 240, eta: float = .5, interest_type: str = "time",
-                 personalized: bool = True, speed_kmh: float = 4) -> Problem:
+def make_problem(
+    pois: list[POI],
+    stats: Statistics,
+    start: str,
+    end: str,
+    budget: float = 240,
+    eta: float = 0.5,
+    interest_type: str = "time",
+    personalized: bool = True,
+    speed_kmh: float = 4,
+) -> Problem:
+    """Lập bảng thời lượng, điểm POI và phút di chuyển cho bộ giải."""
     by_id = {p.id: p for p in pois}
     if len(by_id) != len(pois) or start not in by_id or end not in by_id or start == end:
         raise ValueError("POI phải có mã duy nhất; điểm đầu và cuối phải tồn tại và khác nhau.")
@@ -179,12 +130,20 @@ def make_problem(pois: list[POI], stats: Statistics, start: str, end: str,
     if interest_type not in ("time", "frequency"):
         raise ValueError("Loại sở thích phải là time hoặc frequency.")
     interest = stats.time_interest if interest_type == "time" else stats.frequency_interest
-    # Eq. (3) ALWAYS uses time-based interest, even for PT-0 / PT-.5F / PT-1F.
-    durations = {p.id: stats.averages[p.id] * (stats.time_interest[p.category] if personalized else 1)
-                 for p in pois}
-    rewards = {p.id: eta * interest[p.category] + (1 - eta) * stats.popularity[p.id] for p in pois}
-    travel = {(a.id, b.id): haversine_km(a.lat, a.lon, b.lat, b.lon) / speed_kmh * 60
-              for a in pois for b in pois}
+    # Công thức (3) dùng sở thích theo thời gian cho mọi biến thể điểm số.
+    durations = {
+        poi.id: stats.averages[poi.id] * (stats.time_interest[poi.category] if personalized else 1)
+        for poi in pois
+    }
+    rewards = {
+        poi.id: eta * interest[poi.category] + (1 - eta) * stats.popularity[poi.id]
+        for poi in pois
+    }
+    travel = {
+        (a.id, b.id): haversine_km(a.lat, a.lon, b.lat, b.lon) / speed_kmh * 60
+        for a in pois
+        for b in pois
+    }
     return Problem(by_id, start, end, budget, interest_type, stats, travel, durations, rewards)
 
 

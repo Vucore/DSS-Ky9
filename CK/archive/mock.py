@@ -11,9 +11,11 @@ from math import isfinite
 from pathlib import Path
 import re
 
-from .core import POI, Photo, haversine_km
+from perstour.core import POI, haversine_km
 
-ROOT = Path(__file__).resolve().parents[1]
+from .photos import Photo
+
+ROOT = Path(__file__).resolve().parent
 
 
 def load_mock() -> tuple[list[POI], list[dict]]:
